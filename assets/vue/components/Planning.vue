@@ -72,8 +72,8 @@
       <template v-slot:item="items">
         <tr>
           <td v-for="col in items.headers" :key="col.value" :set="colValue = getProp(items.item,col.value)">
-            <v-icon v-if="col.value=='action'" small class="mr-2" @click="editItem(items.item)">mdi-pencil</v-icon>
-            <v-edit-dialog v-else-if="col.value != 'total' && col.value != 'name' && col.value != 'type'"
+            <v-icon v-if="col.value==='action'" small class="mr-2" @click="editItem(items.item)">mdi-pencil</v-icon>
+            <v-edit-dialog v-else-if="col.value !== 'total' && col.value !== 'name' && col.value !== 'type'"
                            :return-value.sync="colValue" @save="save()" @cancel="cancel" @open="open" @close="close">
               <div>{{ getNbHeures(items.item, col.value) }}</div>
               <template v-slot:input>
@@ -84,10 +84,16 @@
               </template>
             </v-edit-dialog>
             <!-- TODO: mettre une info bulle pour présenter les options de chaque ec avec v-tooltip -->
-            <v-chip v-else-if="col.value == 'total'" :color="getColor(getHeuresTotales(items.item),items.item.vol)">
+            <v-chip v-else-if="col.value === 'total'" :color="getColor(getHeuresTotales(items.item),items.item.vol)">
               {{ getHeuresTotales(items.item) }}h
             </v-chip>
-            <div v-else-if="col.value == 'name'">{{ colValue }}</div>
+            <v-tooltip v-else-if="col.value === 'name'" right>
+              <template v-slot:activator="{ on, attrs }">
+                <!-- colValue n'a pas de valeur dans ce slot ??? on utilise la fonction getProp -->
+                <div :style="'color:' + items.item.color" v-bind="attrs" v-on="on">{{ getProp(items.item,col.value) }}</div>
+              </template>
+              <span>{{items.item.promo.nom}}, {{items.item.nbGroupes}} groupe{{items.item.nbGroupes>1 ? 's': ''}} pour {{items.item.duree}}h</span>
+            </v-tooltip>
             <div v-else>{{colValue.nom}}</div>
           </td>
         </tr>
