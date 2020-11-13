@@ -16,6 +16,7 @@ yarn-error.log
 ###< symfony/webpack-encore-bundle ###
 
 /.idea
+/calendar*.sql
 
 ###> lexik/jwt-authentication-bundle ###
 /config/jwt/*.pem
