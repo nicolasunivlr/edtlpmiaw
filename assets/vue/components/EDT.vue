@@ -302,6 +302,10 @@ export default {
 .chip {
   margin: 0 10px;
 }
+.chip span {
+  padding-left: 5px;
+  padding-right: 5px;
+}
 
 th:first-of-type {
   width: calc(100vw / 12)
