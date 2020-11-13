@@ -40,11 +40,12 @@ export default {
     }
   },
   created() {
-    if( this.$store.state.ecs.length === 0) {
+    this.$store.dispatch('initialiseStoreAction')
+    if( this.$store.state.connexion.connecte && this.$store.state.ecs.length === 0) {
       console.log("chargement api")
       this.$store.dispatch('getDataAction')
     }
-    this.$store.dispatch('initialiseStoreAction')
+
   },
   computed: {
     connecte()  {
