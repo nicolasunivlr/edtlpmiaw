@@ -14,7 +14,7 @@ if (!Encore.isRuntimeEnvironmentConfigured()) {
 
     } else {
         Encore.setOutputPath('public/buildProd/')
-            .setPublicPath('gestion/buildProd')
+            .setPublicPath('/gestion/buildProd')
             .setManifestKeyPrefix('/')
     }
     // only needed for CDN's or sub-directory deploy

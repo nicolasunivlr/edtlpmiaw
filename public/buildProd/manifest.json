@@ -1,9 +1,9 @@
 {
-  "/0.fddd1600.css": "gestion/buildProd/0.fddd1600.css",
-  "/0.0a14aabb.js": "gestion/buildProd/0.0a14aabb.js",
-  "/about.css": "gestion/buildProd/about.50b7fd36.css",
-  "/about.js": "gestion/buildProd/about.eabf27d0.js",
-  "/app.css": "gestion/buildProd/app.d55767b4.css",
-  "/app.js": "gestion/buildProd/app.673127f1.js",
-  "/runtime.js": "gestion/buildProd/runtime.bc1fb4fb.js"
+  "/0.fddd1600.css": "/gestion/buildProd/0.fddd1600.css",
+  "/0.0a14aabb.js": "/gestion/buildProd/0.0a14aabb.js",
+  "/about.css": "/gestion/buildProd/about.50b7fd36.css",
+  "/about.js": "/gestion/buildProd/about.eabf27d0.js",
+  "/app.css": "/gestion/buildProd/app.d55767b4.css",
+  "/app.js": "/gestion/buildProd/app.673127f1.js",
+  "/runtime.js": "/gestion/buildProd/runtime.af9d59db.js"
 }
