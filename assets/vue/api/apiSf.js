@@ -2,7 +2,9 @@ import axios from 'axios'
 
 export default() => {
     return axios.create({
-        baseURL: `/api`,
+        baseURL: process.env.NODE_ENV === 'production'
+            ? '/gestion/api'
+            : '/api',
         withCredentials: false,
         headers: {
             'Accept': 'application/ld+json',

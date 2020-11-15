@@ -36,6 +36,7 @@
                         this.resultat='succès'
                         sessionStorage.setItem('token',this.token.token)
                         this.$store.commit('connect',this.username)
+                        this.$store.dispatch('getDataAction')
                         this.$router.push('/planning')
                     })
                     .catch( e => {

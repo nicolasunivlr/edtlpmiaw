@@ -30,7 +30,8 @@ export default new Vuex.Store({
         connexion: {
             connecte: false,
             login: '',
-        }
+        },
+        loading: true,
     },
     plugins: [
         MAJ
@@ -48,9 +49,9 @@ export default new Vuex.Store({
         updateEcs: (state, data) => {
             const {ec, semaine, nbHeures} = data
             // converti semaines en objet si tableau vide : tableau par défaut pour le type json pour apiplatform
-            if (ec.semaines.length == 0)
+            if (ec.semaines.length === 0)
                 ec.semaines = {}
-            if (nbHeures == '')
+            if (nbHeures === '')
                 delete ec.semaines[semaine]
             else
                 ec.semaines[semaine] = nbHeures
@@ -129,6 +130,7 @@ export default new Vuex.Store({
         },
         setDataEcs(state, data) {
             state.ecs = data['hydra:member']
+            state.loading = false
         },
         setDataTypes(state, data) {
             state.types = data['hydra:member']
@@ -172,7 +174,7 @@ export default new Vuex.Store({
         updateEcsAction({state, commit, getters}, data) {
             commit('saveCours', data)
             commit('suppCoursAll', getters)
-            if (data.nbHeures != -1) {
+            if (data.nbHeures !== -1) {
                 commit('updateEcs', data)
             }
             commit('modificationCours', {data, getters})
@@ -258,7 +260,7 @@ export default new Vuex.Store({
                                 posTop: 0,
                                 posLeft: 0,
                             }
-                            if (ec.promo.nom == 'DFS') {
+                            if (ec.promo.nom === 'DFS') {
                                 cours.groupe = 'groupe' + (i + 2)
                             } else {
                                 cours.groupe = 'groupe' + i
@@ -274,11 +276,11 @@ export default new Vuex.Store({
         },
         coursTousSaufByEcId: (state) => (ecModifie) => {
             // cours qui ne sont pas impactés par la modifcation du planning
-            return state.copieCours.filter(c => c.ec.id != ecModifie.ec.id || c.semaine != ecModifie.semaine)
+            return state.copieCours.filter(c => c.ec.id !== ecModifie.ec.id || c.semaine !== ecModifie.semaine)
         },
         coursTousByEcId: (state) => (ecModifie) => {
             // cours qui sont impactés par la modifcation du planning
-            return state.copieCours.filter(c => c.ec.id == ecModifie.ec.id && c.semaine == ecModifie.semaine)
+            return state.copieCours.filter(c => c.ec.id === ecModifie.ec.id && c.semaine === ecModifie.semaine)
         }
     },
     modules: {},

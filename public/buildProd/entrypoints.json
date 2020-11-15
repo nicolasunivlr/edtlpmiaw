@@ -1,0 +1,15 @@
+{
+  "entrypoints": {
+    "app": {
+      "js": [
+        "gestion/buildProd/runtime.bc1fb4fb.js",
+        "gestion/buildProd/0.0a14aabb.js",
+        "gestion/buildProd/app.673127f1.js"
+      ],
+      "css": [
+        "gestion/buildProd/0.fddd1600.css",
+        "gestion/buildProd/app.d55767b4.css"
+      ]
+    }
+  }
+}

@@ -1,7 +1,7 @@
 <template>
   <v-app>
     <v-data-table :headers="$store.state.headers" :items="$store.state.ecs" dense locale="fr-FR" hide-default-footer
-                  disable-sort :search="recherche" :custom-filter="filterEc"
+                  disable-sort :search="recherche" :custom-filter="filterEc" :loading="loading"
                   disable-pagination hide-default-header no-data-text="Aucun enseignement n'a été créé...">
       <template v-slot:top>
         <v-toolbar flat>
@@ -26,7 +26,7 @@
                       <v-select :items="types" item-text="nom" item-value="nom" label="Type" v-model="editedEc.type" return-object></v-select>
                     </v-col>
                     <v-col cols="12" sm="6" md="4">
-                      <v-text-field v-model="editedEc.vol" label="Volume"></v-text-field>
+                      <v-select :items="promo" item-text="nom" item-value="nom" label="Promo" v-model="editedEc.promo" return-object></v-select>
                     </v-col>
                   </v-row>
                   <v-row>
@@ -37,12 +37,12 @@
                       <v-text-field v-model="editedEc.duree" label="Duree"></v-text-field>
                     </v-col>
                     <v-col cols="12" sm="6" md="4">
-                      <v-select :items="promo" item-text="nom" item-value="nom" label="Promo" v-model="editedEc.promo" return-object></v-select>
+                      <v-text-field v-model="editedEc.vol" label="Volume"></v-text-field>
                     </v-col>
                   </v-row>
                   <v-row>
                     <v-col cols="12" sm="12" md="12">
-                      <v-color-picker class="ma-2" hide-inputs hide-canvas v-model="editedEc.color"></v-color-picker>
+                      <v-color-picker class="ma-2" hide-inputs v-model="editedEc.color"></v-color-picker>
                     </v-col>
                   </v-row>
                 </v-container>
@@ -155,6 +155,9 @@ export default {
     },
     types() {
       return this.$store.state.types
+    },
+    loading() {
+      return this.$store.state.loading
     }
   },
   methods: {
