@@ -57,7 +57,7 @@ class Cours
     private $posLeft;
 
     /**
-     * @ORM\Column(type="string", length=255)
+     * @ORM\Column(type="integer")
      * @Groups({"read:cours", "write:cours"})
      */
     private $groupe;

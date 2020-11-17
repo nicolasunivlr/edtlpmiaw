@@ -6,13 +6,13 @@
     <drop-list :items="cours" @insert="retireCours">
       <template v-slot:item="{item}">
         <drag :key="item.id" class="chip" :data="item">
-          <v-chip :color="item.ec.color" outlined @click="showCours(item)">{{ item.ec.type.nom }}:{{ item.ec.name }}&#45;&#45;{{ item.groupe }}&#45;&#45;{{ item.ec.duree }}h</v-chip>
+          <v-chip :color="item.ec.color" outlined @click="showCours(item)">{{ item.ec.type.nom }}:{{ item.ec.name }}&#45;&#45;groupe{{ item.groupe }}&#45;&#45;{{ item.ec.duree }}h</v-chip>
         </drag>
       </template>
       <template v-slot:feedback="{data}">
         <div class="chip" :key="data.id">
           <v-chip color="primary" outlined>
-            {{ data.ec.type.nom }}:{{ data.ec.name }}&#45;&#45;{{ data.groupe }}&#45;&#45;{{ data.ec.duree }}h
+            {{ data.ec.type.nom }}:{{ data.ec.name }}&#45;&#45;groupe{{ data.groupe }}&#45;&#45;{{ data.ec.duree }}h
           </v-chip>
         </div>
       </template>
@@ -199,9 +199,9 @@ export default {
         tabClass.push('matiere')
       }
       if (cours.ec.type.nom === 'TD') {
-        tabClass.push(cours.groupe + 'td')
+        tabClass.push('groupe'+cours.groupe + 'td')
       } else {
-        tabClass.push(cours.groupe)
+        tabClass.push('groupe'+cours.groupe)
       }
       return tabClass
     },

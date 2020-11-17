@@ -1,9 +1,7 @@
 import Vue from 'vue'
 import Vuex from 'vuex'
-//import Api from "../api/api";
 import ApiSf from "../api/apiSf";
 
-//Api()
 ApiSf()
 
 const MAJ = store => {
@@ -258,12 +256,12 @@ export default new Vuex.Store({
                                 posLeft: 0,
                             }
                             if (ec.promo.nom === 'DFS' || ec.promo.nom === 'AP') {
-                                cours.groupe = 'groupe' + (i + 2)
+                                cours.groupe = i + 2
                             } else {
-                                cours.groupe = 'groupe' + i
+                                cours.groupe = i
                             }
                             if (ec.promo.nom === 'AP' && ec.type.nom === 'TD') {
-                                cours.groupe = 'groupe2'
+                                cours.groupe = 2
                             }
                             nouveauxCours.push(cours)
                             //console.log("on ajoute le cours "+ cours.ec.name)
