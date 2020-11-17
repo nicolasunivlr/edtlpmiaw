@@ -17,7 +17,6 @@ Vue.use(Vuex)
 
 export default new Vuex.Store({
     state: {
-        isFirstTime: true,
         headers: [],
         ecs: [],
         promo: [],
@@ -25,8 +24,7 @@ export default new Vuex.Store({
         cours: [],
         copieCours: [],
         ecModifie: null,
-        coursAPush: [],
-        ancienEc: null,
+        coursAPost: [],
         connexion: {
             connecte: false,
             login: '',
@@ -178,8 +176,8 @@ export default new Vuex.Store({
                 commit('updateEcs', data)
             }
             commit('modificationCours', {data, getters})
-            state.coursAPush.forEach(c => commit('createCoursApi', c))
-            state.coursAPush = []
+            state.coursAPost.forEach(c => commit('createCoursApi', c))
+            state.coursAPost = []
             commit('updateEcsApi', data.ec)
 
         },
@@ -239,7 +237,6 @@ export default new Vuex.Store({
                         //console.log("on passe pour les groupes")
                         for (let j = 1; j <= nbCreneaux; j++) {
                             //console.log("on passe pour les créneaux")
-                            // TODO: ajuster la durée et la comparer à l'horaire de la semaine
                             cours = {
                                 ec: {
                                     id: ec.id,
@@ -260,14 +257,17 @@ export default new Vuex.Store({
                                 posTop: 0,
                                 posLeft: 0,
                             }
-                            if (ec.promo.nom === 'DFS') {
+                            if (ec.promo.nom === 'DFS' || ec.promo.nom === 'AP') {
                                 cours.groupe = 'groupe' + (i + 2)
                             } else {
                                 cours.groupe = 'groupe' + i
                             }
+                            if (ec.promo.nom === 'AP' && ec.type.nom === 'TD') {
+                                cours.groupe = 'groupe2'
+                            }
                             nouveauxCours.push(cours)
-                            console.log("on ajoute le cours "+ cours.ec.name)
-                            state.coursAPush.push(cours)
+                            //console.log("on ajoute le cours "+ cours.ec.name)
+                            state.coursAPost.push(cours)
                         }
                     }
                 }

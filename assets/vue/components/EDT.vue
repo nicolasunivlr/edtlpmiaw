@@ -12,7 +12,7 @@
       <template v-slot:feedback="{data}">
         <div class="chip" :key="data.id">
           <v-chip color="primary" outlined>
-            {{ data.type }}:{{ data.name }}&#45;&#45;{{ data.groupe }}&#45;&#45;{{ data.duree / 60 }}h
+            {{ data.ec.type.nom }}:{{ data.ec.name }}&#45;&#45;{{ data.groupe }}&#45;&#45;{{ data.ec.duree }}h
           </v-chip>
         </div>
       </template>
@@ -31,7 +31,7 @@
           <th v-if="(index-1)%(60/ecart)===0" class="time"><span>{{ afficheHeure(index - 1) }}</span></th>
           <th v-else></th>
           <td v-for="jour in 5" :key="jour" :class="['jour-'+jour ,'heure-'+index]">
-            <drop @drop="placeCours" class="places relative" :accepts-data="verifPlacement">
+            <drop @drop="placeCours" class="places relative" :accepts-data="(d) => verifPlacement(d, jour, index)">
               <template v-for="creneau in places">
                 <drag v-if="creneau.posLeft===jour && creneau.posTop===index" :key="creneau.id" class="chip"
                       :data="creneau">
@@ -123,10 +123,10 @@ export default {
       return d.getTime() - (3600000 * 24 * (firstDayOfYear - 1)) + 604800000 * (this.numSemaine - 1)
     },
     places() {
-      return this.$store.state.cours.filter(c => c.semaine == this.numSemString && c.place)
+      return this.$store.state.cours.filter(c => c.semaine === this.numSemString && c.place)
     },
     cours() {
-      return this.$store.state.cours.filter(c => c.semaine == this.numSemString && !c.place)
+      return this.$store.state.cours.filter(c => c.semaine === this.numSemString && !c.place)
     },
   },
   methods: {
@@ -168,24 +168,37 @@ export default {
       })
       this.dialog = false
     },
-    verifPlacement() {
-      // TODO: vérifier qu'on peut drop le cours ici...
-      return true
+    verifPlacement(cours, jour, index) {
+      // TODO: reste à gérer les cas des TDs des CMs spécifiques
+      let possible = false
+      const coursPositionne = this.places.filter((p) =>
+          p.id !== cours.id
+          && p.posLeft === jour
+          && index >= p.posTop
+          && index < p.posTop + (p.ec.duree*(60/this.ecart))
+          && (
+              p.groupe === cours.groupe
+          || (p.ec.type.nom === 'CM' && p.ec.promo.nom === 'Tous')
+          || (cours.ec.type.nom === 'CM' && cours.ec.promo.nom === 'Tous')
+          )
+      )
+      possible = coursPositionne.length === 0
+      return possible
     },
     getCoursClass(cours) {
       let tabClass = ['creneau']
-      if (cours.ec.type.nom == 'CM' || cours.ec.type.nom == 'Autre') {
-        if (cours.ec.promo.nom == 'Tous') {
+      if (cours.ec.type.nom === 'CM' || cours.ec.type.nom === 'Autre') {
+        if (cours.ec.promo.nom === 'Tous') {
           tabClass.push('cm')
         } else {
           tabClass.push('cmdemi')
         }
-      } else if (cours.ec.type.nom == 'TD') {
+      } else if (cours.ec.type.nom === 'TD') {
         tabClass.push('cmdemi')
       } else {
         tabClass.push('matiere')
       }
-      if (cours.ec.type.nom == 'TD') {
+      if (cours.ec.type.nom === 'TD') {
         tabClass.push(cours.groupe + 'td')
       } else {
         tabClass.push(cours.groupe)
@@ -215,14 +228,14 @@ export default {
       return date.toLocaleDateString('fr-FR', options)
     },
     prevWeek() {
-      if (this.numSemaine == 1)
+      if (this.numSemaine === 1)
         this.numSemaine = 52
       else
         this.numSemaine--
       this.$router.push({name: 'Edt', params: {semaine: this.numSemaine}})
     },
     nextWeek() {
-      if (this.numSemaine == 52)
+      if (this.numSemaine === 52)
         this.numSemaine = 1
       else
         this.numSemaine++
@@ -271,6 +284,10 @@ export default {
 </script>
 
 <style scoped>
+
+.drop-forbidden {
+  background-color: rgba(255, 0, 0, 0.3);
+}
 
 .prev, .next {
   font-size: 24px;

@@ -64,6 +64,7 @@
             <span v-if="header.texte.startsWith('S')">
               <router-link :to="{name: 'Edt', params: {semaine: parseInt(header.texte.substr(1),10)}}">{{ header.texte }}</router-link>
             </span>
+            <span v-else-if="header.texte === 'Action'">&nbsp;</span>
             <span v-else>{{ header.texte }}</span>
           </th>
         </tr>
@@ -73,28 +74,27 @@
         <tr>
           <td v-for="col in items.headers" :key="col.value" :set="colValue = getProp(items.item,col.value)">
             <v-icon v-if="col.value==='action'" small class="mr-2" @click="editItem(items.item)">mdi-pencil</v-icon>
-            <v-edit-dialog v-else-if="col.value !== 'total' && col.value !== 'name' && col.value !== 'type'"
+            <v-edit-dialog v-else-if="col.value !== 'total' && col.value !== 'name' && col.value !== 'promo'"
                            :return-value.sync="colValue" @save="save()" @cancel="cancel" @open="open" @close="close">
               <div>{{ getNbHeures(items.item, col.value) }}</div>
               <template v-slot:input>
                 <div class="mt-4 title">{{ items.item.name }}-{{ items.item.type.nom }} : {{ col.value }}</div>
                 <!-- :value et @input remplacent le v-model -->
                 <v-text-field :value="getNbHeures(items.item,col.value)" @change="updateProp(items.item,col.value,$event)"
-                              :rules="[entierPositif]" label="Nb heures" single-line autofocus></v-text-field>
+                              label="Nb heures" single-line autofocus></v-text-field>
               </template>
             </v-edit-dialog>
-            <!-- TODO: mettre une info bulle pour présenter les options de chaque ec avec v-tooltip -->
             <v-chip v-else-if="col.value === 'total'" :color="getColor(getHeuresTotales(items.item),items.item.vol)">
               {{ getHeuresTotales(items.item) }}h
             </v-chip>
             <v-tooltip v-else-if="col.value === 'name'" right>
               <template v-slot:activator="{ on, attrs }">
                 <!-- colValue n'a pas de valeur dans ce slot ??? on utilise la fonction getProp -->
-                <div :style="'color:' + items.item.color" v-bind="attrs" v-on="on">{{ getProp(items.item,col.value) }}</div>
+                <div :style="'color:' + items.item.color" v-bind="attrs" v-on="on">{{ getProp(items.item,col.value) }}-{{items.item.type.nom}}</div>
               </template>
-              <span>{{items.item.promo.nom}}, {{items.item.nbGroupes}} groupe{{items.item.nbGroupes>1 ? 's': ''}} pour {{items.item.duree}}h</span>
+              <span>{{items.item.nbGroupes}} groupe{{items.item.nbGroupes>1 ? 's': ''}} pour {{items.item.duree}}h. Vol : {{items.item.vol}}h</span>
             </v-tooltip>
-            <div v-else>{{colValue.nom}}</div>
+            <div v-else>{{items.item.promo.nom}}</div>
           </td>
         </tr>
       </template>
@@ -108,6 +108,8 @@
 
 <script>
 
+import { mapState } from 'vuex'
+
 export default {
   name: 'Planning',
   components: {},
@@ -119,7 +121,6 @@ export default {
       snack: false,
       snackColor: '',
       snackText: '',
-      entierPositif: v => parseInt(v) >= 0 || 'nombre impossible',
       editedIndex: -1,
       editedEc: {
         name: '',
@@ -135,7 +136,7 @@ export default {
         name: '',
         type: {nom: ''},
         vol: 0,
-        promo: {nom: 'Tous'},
+        promo: {nom: ''},
         color: '',
         duree: 0,
         nbGroupes: 1,
@@ -144,21 +145,9 @@ export default {
     }
   },
   computed: {
-    ecs() {
-      return this.$store.state.ecs
-    },
-    headers() {
-      return this.$store.state.headers
-    },
-    promo() {
-      return this.$store.state.promo
-    },
-    types() {
-      return this.$store.state.types
-    },
-    loading() {
-      return this.$store.state.loading
-    }
+    ...mapState([
+        'ecs', 'headers', 'promo', 'types', 'loading'
+             ]),
   },
   methods: {
     filterEc (value, search, item) {
@@ -167,6 +156,7 @@ export default {
           typeof value === 'string' && value.toString().toLowerCase().indexOf(search) !== -1
     },
     getColor(fait, afaire) {
+      if (fait === 0) return 'white'
       if (fait > afaire) return 'red'
       else if (fait < afaire) return 'yellow'
       else return 'green'
@@ -182,7 +172,6 @@ export default {
       return total
     },
     updateProp(ec, semaine, nbHeures) {
-      //if (this.compteurUpdate % 2 === 0) {
         this.$nextTick(() => {
           // permet de mettre à jour de manière réactive l'elément
           this.$set(ec.semaines, semaine, nbHeures)
@@ -193,7 +182,6 @@ export default {
           })
         })
         this.compteurUpdate++
-      //}
     },
     getProp(elem, key) {
       return elem[key]
@@ -260,6 +248,11 @@ export default {
 
 .chip {
   padding-bottom: 10px;
+}
+
+td {
+  border-left: thin solid rgba(0,0,0,0.12);
+  box-sizing: border-box;
 }
 
 </style>
