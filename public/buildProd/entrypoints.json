@@ -3,12 +3,12 @@
     "app": {
       "js": [
         "/gestion/buildProd/runtime.af9d59db.js",
-        "/gestion/buildProd/0.fca982fc.js",
-        "/gestion/buildProd/app.31e7c133.js"
+        "/gestion/buildProd/0.e680ef34.js",
+        "/gestion/buildProd/app.c35b9fa2.js"
       ],
       "css": [
         "/gestion/buildProd/0.fddd1600.css",
-        "/gestion/buildProd/app.cd6067c9.css"
+        "/gestion/buildProd/app.0cd3b7be.css"
       ]
     }
   }

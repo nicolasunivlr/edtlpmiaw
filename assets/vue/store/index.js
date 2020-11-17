@@ -71,6 +71,7 @@ export default new Vuex.Store({
         updateCoursApi: (state, data) => {
             const cours = {...data.cours}
             cours.ec =cours.ec['@id']
+            cours.groupe = parseInt(cours.groupe)
             ApiSf().put('cours/' + cours.id, cours).then(() => {
                 // on affiche le snack pour dire sauvegarde en cours
                 console.log('axios put cours')
@@ -100,6 +101,7 @@ export default new Vuex.Store({
         createCoursApi: (state, data) => {
             const cours = {...data}
             cours.ec =state.ecModifie.ec['@id'] ? state.ecModifie.ec['@id'] : '/api/ecs/'+state.ecModifie.ec.id
+            cours.groupe = parseInt(cours.groupe)
             ApiSf().post('cours', cours).then((reponse) => {
                 // on affiche le snack pour dire sauvegarde en cours
                 console.log('axios post cours')
@@ -209,11 +211,6 @@ export default new Vuex.Store({
                 .then(q => {
                     context.commit("setDataPromo", q)
                 })
-            ApiSf().get('cours')
-                .then(response => response.data)
-                .then(q => {
-                    context.commit("setDataCours", q)
-                })
         },
     },
     getters: {
@@ -261,7 +258,7 @@ export default new Vuex.Store({
                                 cours.groupe = i
                             }
                             if (ec.promo.nom === 'AP' && ec.type.nom === 'TD') {
-                                cours.groupe = 2
+                                cours.groupe = 3
                             }
                             nouveauxCours.push(cours)
                             //console.log("on ajoute le cours "+ cours.ec.name)

@@ -1,5 +1,11 @@
 <template>
   <v-app>
+    <v-overlay :value="overlay">
+      <v-progress-circular
+          indeterminate
+          size="64"
+      ></v-progress-circular>
+    </v-overlay>
     <h2>Cours à placer
       <router-link :to="{name: 'Planning'}">Planning</router-link>
     </h2>
@@ -82,6 +88,7 @@
 <script>
 
 import {Drag, Drop, DropList} from "vue-easy-dnd"
+import ApiSf from "../api/apiSf";
 
 export default {
   name: "EDT",
@@ -92,6 +99,7 @@ export default {
   },
   data() {
     return {
+      overlay: true,
       dialog: false,
       paramSemaine: parseInt(this.$route.params.semaine),
       numSemaine: this.getNumSemaine(),
@@ -112,6 +120,9 @@ export default {
       editCours: false,
     }
   },
+  created() {
+    this.callApi()
+  },
   computed: {
     numSemString() {
       return 's' + this.numSemaine
@@ -130,6 +141,15 @@ export default {
     },
   },
   methods: {
+    callApi() {
+      this.overlay = true
+      ApiSf().get('cours?semaine=s'+this.numSemaine)
+          .then(response => response.data)
+          .then(q => {
+            this.$store.commit("setDataCours", q)
+          })
+          .then(this.overlay = false)
+    },
     showCours(cours) {
       this.editCours = true
       this.show(cours)
@@ -174,12 +194,13 @@ export default {
       const coursPositionne = this.places.filter((p) =>
           p.id !== cours.id
           && p.posLeft === jour
-          && index >= p.posTop
+          && index >= p.posTop - (p.ec.duree*(60/this.ecart))
           && index < p.posTop + (p.ec.duree*(60/this.ecart))
           && (
               p.groupe === cours.groupe
           || (p.ec.type.nom === 'CM' && p.ec.promo.nom === 'Tous')
           || (cours.ec.type.nom === 'CM' && cours.ec.promo.nom === 'Tous')
+          || (p.ec.type.nom === 'TD' && parseInt(p.groupe) + 1 === parseInt(cours.groupe))
           )
       )
       possible = coursPositionne.length === 0
@@ -233,6 +254,7 @@ export default {
       else
         this.numSemaine--
       this.$router.push({name: 'Edt', params: {semaine: this.numSemaine}})
+      this.callApi()
     },
     nextWeek() {
       if (this.numSemaine === 52)
@@ -240,6 +262,7 @@ export default {
       else
         this.numSemaine++
       this.$router.push({name: 'Edt', params: {semaine: this.numSemaine}})
+      this.callApi()
     },
     calcHauteur(duree) {
       let haut = 17 * duree * 60 / this.ecart
@@ -393,7 +416,7 @@ tr > th, tr > td {
   border: thin solid bisque;
 }
 
-.groupe3, .groupe2td {
+.groupe3, .groupe3td {
   border: thin solid aqua;
   left: 50%;
 }
