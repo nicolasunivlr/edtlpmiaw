@@ -28,6 +28,7 @@ export default new Vuex.Store({
             login: '',
         },
         loading: true,
+        placement: false,
     },
     plugins: [
         MAJ

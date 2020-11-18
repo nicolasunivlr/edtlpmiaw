@@ -6,7 +6,27 @@
         <span class="font-weight-light"> Gestion de l'emploi du temps de la LPMIAW</span>
       </v-toolbar-title>
       <v-spacer></v-spacer>
-      <v-spacer></v-spacer>
+      <v-menu v-model="menu" :close-on-content-click="false" :nudge-width="200" offset-x>
+        <template v-slot:activator="{ on, attrs }">
+          <v-btn outlined v-bind="attrs" v-on="on">
+            <v-icon left>mdi-cog</v-icon>
+          </v-btn>
+        </template>
+        <v-card>
+          <v-list>
+            <v-list-item>
+              <v-list-item-action>
+                <v-switch v-model="placement"></v-switch>
+              </v-list-item-action>
+              <v-list-item-title>Contrôle du placement (béta)</v-list-item-title>
+            </v-list-item>
+          </v-list>
+            <v-card-actions>
+            <v-spacer></v-spacer>
+            <v-btn color="primary" text @click="menu = false">Valider</v-btn>
+          </v-card-actions>
+        </v-card>
+      </v-menu>
       <v-menu offset-y v-if="connecte">
         <template v-slot:activator="{ on }">
           <v-btn  outlined v-on="on">
@@ -28,6 +48,7 @@
 <script>
 
 import Navigation from './components/Navigation.vue'
+import {mapState} from "vuex";
 
 export default {
   name: 'App',
@@ -37,6 +58,8 @@ export default {
   data() {
     return {
       drawer: false,
+      menu: false,
+      hints: true,
     }
   },
   created() {
@@ -48,6 +71,9 @@ export default {
 
   },
   computed: {
+    ...mapState([
+      'placement'
+    ]),
     connecte()  {
       return this.$store.state.connexion.connecte
     },

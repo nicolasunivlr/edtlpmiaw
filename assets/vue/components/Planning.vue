@@ -60,7 +60,7 @@
       <template v-slot:header="headers">
         <thead>
         <tr>
-          <th v-for="header in headers.props.headers" :key="header.value" role="columnheader" scope="col" :aria-label="header" class="text-start">
+          <th v-for="header in headers.props.headers" :key="header.value" role="columnheader" scope="col" :aria-label="header.texte" class="text-center">
             <span v-if="header.texte.startsWith('S')">
               <router-link :to="{name: 'Edt', params: {semaine: parseInt(header.texte.substr(1),10)}}">{{ header.texte }}</router-link>
             </span>
@@ -72,7 +72,7 @@
       </template>
       <template v-slot:item="items">
         <tr>
-          <td v-for="col in items.headers" :key="col.value" :set="colValue = getProp(items.item,col.value)">
+          <td v-for="col in items.headers" :key="col.value" :set="colValue = getProp(items.item,col.value)" class="text-center">
             <v-icon v-if="col.value==='action'" small class="mr-2" @click="editItem(items.item)">mdi-pencil</v-icon>
             <v-edit-dialog v-else-if="col.value !== 'total' && col.value !== 'name' && col.value !== 'promo'"
                            :return-value.sync="colValue" @save="save()" @cancel="cancel" @open="open" @close="close">
@@ -253,6 +253,10 @@ export default {
 td {
   border-left: thin solid rgba(0,0,0,0.12);
   box-sizing: border-box;
+}
+
+.v-data-table > .v-data-table__wrapper > table > tbody > tr > td, .v-data-table > .v-data-table__wrapper > table > tbody > tr > th, .v-data-table > .v-data-table__wrapper > table > tfoot > tr > td, .v-data-table > .v-data-table__wrapper > table > tfoot > tr > th, .v-data-table > .v-data-table__wrapper > table > thead > tr > td, .v-data-table > .v-data-table__wrapper > table > thead > tr > th {
+  padding: 0 0;
 }
 
 </style>

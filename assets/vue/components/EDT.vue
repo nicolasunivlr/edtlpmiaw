@@ -39,7 +39,7 @@
           <td v-for="jour in 5" :key="jour" :class="['jour-'+jour ,'heure-'+index]">
             <drop @drop="placeCours" class="places relative" :accepts-data="(d) => verifPlacement(d, jour, index)">
               <template v-for="creneau in places">
-                <drag v-if="creneau.posLeft===jour && creneau.posTop===index" :key="creneau.id" class="chip"
+                <drag v-if="creneau.posLeft===jour && (parseInt(creneau.posTop/(ecart/15)))===index" :key="creneau.id" class="chip"
                       :data="creneau">
                   <div :class="getCoursClass(creneau)"
                        :style="{'background': creneau.ec.color, 'height': calcHauteur(creneau.ec.duree),   }"
@@ -100,10 +100,10 @@ export default {
   data() {
     return {
       overlay: true,
+      ecart: 15,
       dialog: false,
       paramSemaine: parseInt(this.$route.params.semaine),
       numSemaine: this.getNumSemaine(),
-      ecart: 15,
       debut: 8,
       fin: 20,
       editedCours: {
@@ -189,22 +189,28 @@ export default {
       this.dialog = false
     },
     verifPlacement(cours, jour, index) {
-      // TODO: reste à gérer les cas des TDs des CMs spécifiques
-      let possible = false
-      const coursPositionne = this.places.filter((p) =>
-          p.id !== cours.id
-          && p.posLeft === jour
-          && index >= p.posTop - (p.ec.duree*(60/this.ecart))
-          && index < p.posTop + (p.ec.duree*(60/this.ecart))
-          && (
-              p.groupe === cours.groupe
-          || (p.ec.type.nom === 'CM' && p.ec.promo.nom === 'Tous')
-          || (cours.ec.type.nom === 'CM' && cours.ec.promo.nom === 'Tous')
-          || (p.ec.type.nom === 'TD' && parseInt(p.groupe) + 1 === parseInt(cours.groupe))
-          )
-      )
-      possible = coursPositionne.length === 0
-      return possible
+      if (!this.placement) {
+        return true
+      } else {
+        // TODO: reste à gérer les cas des TDs des CMs spécifiques
+        let possible = false
+        const coursPositionne = this.places.filter((p) =>
+            p.id !== cours.id
+            && p.posLeft === jour
+            && index >= p.posTop - (p.ec.duree * (60 / this.ecart))
+            && index < p.posTop + (p.ec.duree * (60 / this.ecart))
+            && (
+                p.groupe === cours.groupe
+                || (p.ec.type.nom === 'CM' && p.ec.promo.nom === 'Tous')
+                || (cours.ec.type.nom === 'CM' && cours.ec.promo.nom === 'Tous')
+                || (p.ec.type.nom === 'TD' && parseInt(p.groupe) + 1 === parseInt(cours.groupe))
+                || (p.ec.type.nom === 'CM' && parseInt(p.groupe) + 1 === parseInt(cours.groupe))
+                || (cours.ec.type.nom === 'CM' && parseInt(cours.groupe) + 1 === parseInt(p.groupe))
+            )
+        )
+        possible = coursPositionne.length === 0
+        return possible
+      }
     },
     getCoursClass(cours) {
       let tabClass = ['creneau']
@@ -313,7 +319,10 @@ export default {
 }
 
 .prev, .next {
-  font-size: 24px;
+  font-size: 36px;
+  position: relative;
+  top: 5px;
+  padding: 10px;
 }
 
 .creneau {
