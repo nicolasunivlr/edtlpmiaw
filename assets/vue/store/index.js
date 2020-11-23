@@ -15,6 +15,8 @@ Vue.use(Vuex)
 
 export default new Vuex.Store({
     state: {
+        annee: 2020,
+        overlay: false,
         headers: [],
         ecs: [],
         promo: [],
@@ -61,10 +63,9 @@ export default new Vuex.Store({
             ec.duree = parseFloat(ec.duree)
             ec.nbGroupes = parseInt(ec.nbGroupes)
             ApiSf().put('ecs/' + ec.id, ec).then(() => {
-                // on affiche le snack pour dire sauvegarde en cours
                 console.log('axios put ec')
             }).then(() => {
-                // on supprime le snack
+                state.overlay = false
             }).catch(error => {
                 console.log(error)
             })
@@ -74,10 +75,9 @@ export default new Vuex.Store({
             cours.ec =cours.ec['@id']
             cours.groupe = parseInt(cours.groupe)
             ApiSf().put('cours/' + cours.id, cours).then(() => {
-                // on affiche le snack pour dire sauvegarde en cours
                 console.log('axios put cours')
             }).then(() => {
-                // on supprime le snack
+                state.overlay = false
             }).catch(error => {
                 console.log(error)
             })
@@ -104,12 +104,11 @@ export default new Vuex.Store({
             cours.ec =state.ecModifie.ec['@id'] ? state.ecModifie.ec['@id'] : '/api/ecs/'+state.ecModifie.ec.id
             cours.groupe = parseInt(cours.groupe)
             ApiSf().post('cours', cours).then((reponse) => {
-                // on affiche le snack pour dire sauvegarde en cours
                 console.log('axios post cours')
                 const indice = state.cours.findIndex(c => c.id === cours.id)
                 state.cours[indice].id = reponse.data.id
             }).then(() => {
-                // on supprime le snack
+                // on supprime l'overlay
             }).catch(error => {
                 console.log(error)
             })
@@ -148,9 +147,8 @@ export default new Vuex.Store({
         suppCoursAll(state, getters) {
             const coursASuprrimer = getters.coursTousByEcId(state.ecModifie)
             coursASuprrimer.forEach((c)=>{
-                console.log("on supprime le cours "+ c.name)
+                console.log("on supprime le cours "+ c.ec.nom)
                 ApiSf().delete('cours/'+ c.id).then(() => {
-                    // on affiche le snack pour dire sauvegarde en cours
                     console.log('axios delete cours')
                     state.cours = state.cours.filter((item) => {
                         return item.id !== c.id
@@ -171,6 +169,7 @@ export default new Vuex.Store({
             context.commit('createEcsApi', data)
         },
         updateEcsAction({state, commit, getters}, data) {
+            state.overlay = true
             commit('saveCours', data)
             commit('suppCoursAll', getters)
             if (data.nbHeures !== -1) {
@@ -180,7 +179,6 @@ export default new Vuex.Store({
             state.coursAPost.forEach(c => commit('createCoursApi', c))
             state.coursAPost = []
             commit('updateEcsApi', data.ec)
-
         },
         updateCoursAction(context, data) {
             context.commit('updateCours', data)
@@ -196,6 +194,12 @@ export default new Vuex.Store({
                 .then(response => response.data)
                 .then(q => {
                     context.commit("setDataHeaders", q)
+                })
+                .catch(error => {
+                    if (error.response.status === 401) {
+                        sessionStorage.removeItem('token')
+                        context.state.connexion.connecte = false
+                    }
                 })
             ApiSf().get('ecs')
                 .then(response => response.data)
@@ -236,7 +240,7 @@ export default new Vuex.Store({
                             cours = {
                                 ec: {
                                     id: ec.id,
-                                    name: ec.name,
+                                    nom: ec.nom,
                                     color: ec.color,
                                     duree: ec.duree,
                                     promo: {
@@ -249,9 +253,7 @@ export default new Vuex.Store({
                                     },
                                 },
                                 semaine: ecModifie.semaine,
-                                place: false,
-                                posTop: 0,
-                                posLeft: 0,
+                                place: false
                             }
                             if (ec.promo.nom === 'DFS' || ec.promo.nom === 'AP') {
                                 cours.groupe = i + 2
@@ -262,7 +264,7 @@ export default new Vuex.Store({
                                 cours.groupe = 3
                             }
                             nouveauxCours.push(cours)
-                            //console.log("on ajoute le cours "+ cours.ec.name)
+                            //console.log("on ajoute le cours "+ cours.ec.nom)
                             state.coursAPost.push(cours)
                         }
                     }

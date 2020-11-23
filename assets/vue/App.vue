@@ -48,7 +48,6 @@
 <script>
 
 import Navigation from './components/Navigation.vue'
-import {mapState} from "vuex";
 
 export default {
   name: 'App',
@@ -67,13 +66,21 @@ export default {
     if( this.$store.state.connexion.connecte && this.$store.state.ecs.length === 0) {
       console.log("chargement api")
       this.$store.dispatch('getDataAction')
+          .catch(()=>{
+            this.deconnexion()
+          })
     }
 
   },
   computed: {
-    ...mapState([
-      'placement'
-    ]),
+    placement: {
+      get() {
+        return this.$store.state.placement
+      },
+      set(value) {
+        this.$store.state.placement = value
+      }
+    },
     connecte()  {
       return this.$store.state.connexion.connecte
     },
@@ -82,6 +89,11 @@ export default {
     }
   },
   watch: {
+    connecte() {
+      if (this.connecte === false) {
+        this.$router.push('/login')
+      }
+    }
   },
   methods: {
     deconnexion() {

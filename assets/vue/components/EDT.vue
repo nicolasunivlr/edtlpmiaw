@@ -12,13 +12,13 @@
     <drop-list :items="cours" @insert="retireCours">
       <template v-slot:item="{item}">
         <drag :key="item.id" class="chip" :data="item">
-          <v-chip :color="item.ec.color" outlined @click="showCours(item)">{{ item.ec.type.nom }}:{{ item.ec.name }}&#45;&#45;groupe{{ item.groupe }}&#45;&#45;{{ item.ec.duree }}h</v-chip>
+          <v-chip :color="item.ec.color" outlined @click="showCours(item)">{{ item.ec.type.nom }}:{{ item.ec.nom }}&#45;&#45;groupe{{ item.groupe }}&#45;&#45;{{ item.ec.duree }}h</v-chip>
         </drag>
       </template>
       <template v-slot:feedback="{data}">
         <div class="chip" :key="data.id">
           <v-chip color="primary" outlined>
-            {{ data.ec.type.nom }}:{{ data.ec.name }}&#45;&#45;groupe{{ data.groupe }}&#45;&#45;{{ data.ec.duree }}h
+            {{ data.ec.type.nom }}:{{ data.ec.nom }}&#45;&#45;groupe{{ data.groupe }}&#45;&#45;{{ data.ec.duree }}h
           </v-chip>
         </div>
       </template>
@@ -39,12 +39,12 @@
           <td v-for="jour in 5" :key="jour" :class="['jour-'+jour ,'heure-'+index]">
             <drop @drop="placeCours" class="places relative" :accepts-data="(d) => verifPlacement(d, jour, index)">
               <template v-for="creneau in places">
-                <drag v-if="creneau.posLeft===jour && (parseInt(creneau.posTop/(ecart/15)))===index" :key="creneau.id" class="chip"
+                <drag v-if="heureToCreneau(creneau.date).posLeft===jour && heureToCreneau(creneau.date).posTop===index" :key="creneau.id" class="chip"
                       :data="creneau">
                   <div :class="getCoursClass(creneau)"
                        :style="{'background': creneau.ec.color, 'height': calcHauteur(creneau.ec.duree),   }"
                        @click="showPlaces(creneau)">
-                    <p class="titre">{{ creneau.ec.type.nom }} - {{ creneau.ec.name }}</p>
+                    <p class="titre">{{ creneau.ec.type.nom }} - {{ creneau.ec.nom }}</p>
                     <p>{{ creneau.ec.promo.nom }}</p>
                     <p>{{ creneau.enseignant }} - {{ creneau.salle }}</p>
                     <p>{{ creneau.remarque }}</p>
@@ -89,6 +89,8 @@
 
 import {Drag, Drop, DropList} from "vue-easy-dnd"
 import ApiSf from "../api/apiSf";
+import moment from 'moment'
+moment.locale('fr')
 
 export default {
   name: "EDT",
@@ -99,11 +101,11 @@ export default {
   },
   data() {
     return {
-      overlay: true,
       ecart: 15,
       dialog: false,
       paramSemaine: parseInt(this.$route.params.semaine),
       numSemaine: this.getNumSemaine(),
+      annee: 2020,
       debut: 8,
       fin: 20,
       editedCours: {
@@ -124,6 +126,9 @@ export default {
     this.callApi()
   },
   computed: {
+    overlay() {
+      return this.$store.state.overlay
+    },
     numSemString() {
       return 's' + this.numSemaine
     },
@@ -137,18 +142,43 @@ export default {
       return this.$store.state.cours.filter(c => c.semaine === this.numSemString && c.place)
     },
     cours() {
-      return this.$store.state.cours.filter(c => c.semaine === this.numSemString && !c.place)
+      return this.$store.state.cours.filter(c => c.semaine === this.numSemString && !c.place).sort(this.compareCours)
     },
   },
   methods: {
+    compareCours(a,b) {
+      if (a.ec.nom < b.ec.nom)
+        return -1
+      if (a.ec.nom > b.ec.nom)
+        return 1
+      if (a.ec.type.nom < b.ec.type.nom)
+        return -1
+      if (a.ec.type.nom > b.ec.type.nom)
+        return 1
+      if (a.groupe < b.groupe)
+        return -1
+      if (a.groupe > b.groupe)
+        return 1
+      return 0
+    },
     callApi() {
-      this.overlay = true
+      this.$store.state.overlay = true
       ApiSf().get('cours?semaine=s'+this.numSemaine)
           .then(response => response.data)
           .then(q => {
             this.$store.commit("setDataCours", q)
           })
-          .then(this.overlay = false)
+          .then(this.$store.state.overlay = false)
+    },
+    creneauToHeure(c, jour) {
+      let heure = parseInt(8 + (c-1)/(4/(this.ecart/15)))
+      let min = this.ecart * ((c - 1) % (4/(this.ecart/15)))
+      return moment(this.numSemaine+' '+this.annee+' '+heure+' '+min,'ww gggg hh mm').add({ 'd': jour-1}).format()
+    },
+    heureToCreneau(h) {
+      let posTop = (moment(h).hour()-8)*(4/(this.ecart/15)) + (moment(h).minute()/this.ecart + 1)
+      let posLeft = (moment(h).day())
+      return {'posTop':posTop, 'posLeft': posLeft }
     },
     showCours(cours) {
       this.editCours = true
@@ -189,16 +219,17 @@ export default {
       this.dialog = false
     },
     verifPlacement(cours, jour, index) {
-      if (!this.placement) {
+      if (!this.$store.state.placement) {
         return true
       } else {
-        // TODO: reste à gérer les cas des TDs des CMs spécifiques
+        // TODO: reste à gérer les cas des TDs des CMs spécifiques...
         let possible = false
         const coursPositionne = this.places.filter((p) =>
             p.id !== cours.id
-            && p.posLeft === jour
-            && index >= p.posTop - (p.ec.duree * (60 / this.ecart))
-            && index < p.posTop + (p.ec.duree * (60 / this.ecart))
+            // TODO: remplacer posLeft et posTop par la fonction heureToCreneau
+            && this.heureToCreneau(p.date).posLeft === jour
+            && index > this.heureToCreneau(p.date).posTop - (cours.ec.duree * (60 / this.ecart))
+            && index < this.heureToCreneau(p.date).posTop + (p.ec.duree * (60 / this.ecart))
             && (
                 p.groupe === cours.groupe
                 || (p.ec.type.nom === 'CM' && p.ec.promo.nom === 'Tous')
@@ -236,11 +267,12 @@ export default {
       if (Number.isInteger(parseInt(this.$route.params.semaine))) {
         return parseInt(this.$route.params.semaine)
       } else {
-        const d = new Date();
+        return moment().week()
+        /*const d = new Date();
         const dayNum = d.getUTCDay() || 7;
         d.setUTCDate(d.getUTCDate() + 4 - dayNum);
         const yearStart = new Date(Date.UTC(d.getUTCFullYear(), 0, 1));
-        return Math.ceil((((d - yearStart) / 86400000) + 1) / 7)
+        return Math.ceil((((d - yearStart) / 86400000) + 1) / 7)*/
       }
     },
     getDay(inc) {
@@ -275,9 +307,10 @@ export default {
       return haut + 'px'
     },
     placeCours(c) {
-      // TODO: vérifier qu'un cours n'est pas déjà placé pour ce groupe sur ce créneau
-      c.data.posLeft = parseInt(c.top.$el.parentNode.classList[0].split('-')[1])
-      c.data.posTop = parseInt(c.top.$el.parentNode.classList[1].split('-')[1])
+      this.$store.state.overlay = true
+      let posLeft = parseInt(c.top.$el.parentNode.classList[0].split('-')[1])
+      let posTop = parseInt(c.top.$el.parentNode.classList[1].split('-')[1])
+      c.data.date=this.creneauToHeure(posTop, posLeft)
       this.$nextTick(() => {
         this.$store.dispatch('updateCoursAction', {
           cours: c.data,

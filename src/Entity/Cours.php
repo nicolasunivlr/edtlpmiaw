@@ -48,18 +48,6 @@ class Cours
     private $place;
 
     /**
-     * @ORM\Column(type="smallint")
-     * @Groups({"read:cours", "write:cours"})
-     */
-    private $posTop;
-
-    /**
-     * @ORM\Column(type="smallint")
-     * @Groups({"read:cours", "write:cours"})
-     */
-    private $posLeft;
-
-    /**
      * @ORM\Column(type="integer")
      * @Groups({"read:cours", "write:cours"})
      */
@@ -82,6 +70,12 @@ class Cours
      * @Groups({"read:cours", "write:cours"})
      */
     private $remarque;
+
+    /**
+     * @ORM\Column(type="datetime", nullable=true)
+     * @Groups({"read:cours", "write:cours"})
+     */
+    private $date;
 
     public function getId(): ?int
     {
@@ -120,30 +114,6 @@ class Cours
     public function setPlace(bool $place): self
     {
         $this->place = $place;
-
-        return $this;
-    }
-
-    public function getPosTop(): ?int
-    {
-        return $this->posTop;
-    }
-
-    public function setPosTop(int $posTop): self
-    {
-        $this->posTop = $posTop;
-
-        return $this;
-    }
-
-    public function getPosLeft(): ?int
-    {
-        return $this->posLeft;
-    }
-
-    public function setPosLeft(int $posLeft): self
-    {
-        $this->posLeft = $posLeft;
 
         return $this;
     }
@@ -192,6 +162,18 @@ class Cours
     public function setRemarque(?string $remarque): self
     {
         $this->remarque = $remarque;
+
+        return $this;
+    }
+
+    public function getDate(): ?\DateTimeInterface
+    {
+        return $this->date;
+    }
+
+    public function setDate(?\DateTimeInterface $date): self
+    {
+        $this->date = $date;
 
         return $this;
     }

@@ -1,13 +1,20 @@
 <template>
   <v-app>
+    <v-overlay :value="overlay">
+      <v-progress-circular indeterminate size="256">
+        <h2 class="text-center">Mise à jour des enseignements...</h2>
+      </v-progress-circular>
+    </v-overlay>
+    <p></p>
     <v-data-table :headers="$store.state.headers" :items="$store.state.ecs" dense locale="fr-FR" hide-default-footer
                   disable-sort :search="recherche" :custom-filter="filterEc" :loading="loading"
                   disable-pagination hide-default-header no-data-text="Aucun enseignement n'a été créé...">
       <template v-slot:top>
         <v-toolbar flat>
-          <v-toolbar-title>Planning de l'année 2020-2021</v-toolbar-title>
+          <v-toolbar-title>Planning de l'année {{ annee }}-{{ annee +1 }}</v-toolbar-title>
           <v-divider class="mx-4" inset vertical></v-divider>
-          <v-spacer></v-spacer>
+          <v-text-field v-model="recherche" label="Recherche EC..."></v-text-field>
+          <v-divider class="mx-4" inset vertical></v-divider>
           <v-dialog v-model="dialog" max-width="500px">
             <template v-slot:activator="{ on, attrs }">
               <v-btn color="primary" dark class="mb-2" v-bind="attrs" v-on="on">Nouveau EC</v-btn>
@@ -20,7 +27,7 @@
                 <v-container>
                   <v-row>
                     <v-col cols="12" sm="6" md="4">
-                      <v-text-field v-model="editedEc.name" label="Nom de l'EC"></v-text-field>
+                      <v-text-field v-model="editedEc.nom" label="Nom de l'EC"></v-text-field>
                     </v-col>
                     <v-col cols="12" sm="6" md="4">
                       <v-select :items="types" item-text="nom" item-value="nom" label="Type" v-model="editedEc.type" return-object></v-select>
@@ -55,7 +62,6 @@
             </v-card>
           </v-dialog>
         </v-toolbar>
-        <v-text-field v-model="recherche" label="Recherche EC..." class="mx-4"></v-text-field>
       </template>
       <template v-slot:header="headers">
         <thead>
@@ -74,11 +80,11 @@
         <tr>
           <td v-for="col in items.headers" :key="col.value" :set="colValue = getProp(items.item,col.value)" class="text-center">
             <v-icon v-if="col.value==='action'" small class="mr-2" @click="editItem(items.item)">mdi-pencil</v-icon>
-            <v-edit-dialog v-else-if="col.value !== 'total' && col.value !== 'name' && col.value !== 'promo'"
+            <v-edit-dialog v-else-if="col.value !== 'total' && col.value !== 'nom' && col.value !== 'promo'"
                            :return-value.sync="colValue" @save="save()" @cancel="cancel" @open="open" @close="close">
               <div>{{ getNbHeures(items.item, col.value) }}</div>
               <template v-slot:input>
-                <div class="mt-4 title">{{ items.item.name }}-{{ items.item.type.nom }} : {{ col.value }}</div>
+                <div class="mt-4 title">{{ items.item.nom }}-{{ items.item.type.nom }} : {{ col.value }}</div>
                 <!-- :value et @input remplacent le v-model -->
                 <v-text-field :value="getNbHeures(items.item,col.value)" @change="updateProp(items.item,col.value,$event)"
                               label="Nb heures" single-line autofocus></v-text-field>
@@ -87,7 +93,7 @@
             <v-chip v-else-if="col.value === 'total'" :color="getColor(getHeuresTotales(items.item),items.item.vol)">
               {{ getHeuresTotales(items.item) }}h
             </v-chip>
-            <v-tooltip v-else-if="col.value === 'name'" right>
+            <v-tooltip v-else-if="col.value === 'nom'" right>
               <template v-slot:activator="{ on, attrs }">
                 <!-- colValue n'a pas de valeur dans ce slot ??? on utilise la fonction getProp -->
                 <div :style="'color:' + items.item.color" v-bind="attrs" v-on="on">{{ getProp(items.item,col.value) }}-{{items.item.type.nom}}</div>
@@ -116,14 +122,13 @@ export default {
   data() {
     return {
       recherche: '',
-      compteurUpdate:0,
       dialog: false,
       snack: false,
       snackColor: '',
       snackText: '',
       editedIndex: -1,
       editedEc: {
-        name: '',
+        nom: '',
         type: {nom: ''},
         vol: 0,
         promo: {nom: ''},
@@ -133,7 +138,7 @@ export default {
         semaines: {}
       },
       defaultEc: {
-        name: '',
+        nom: '',
         type: {nom: ''},
         vol: 0,
         promo: {nom: ''},
@@ -146,7 +151,7 @@ export default {
   },
   computed: {
     ...mapState([
-        'ecs', 'headers', 'promo', 'types', 'loading'
+        'ecs', 'headers', 'promo', 'types', 'loading', 'overlay', 'annee'
              ]),
   },
   methods: {
@@ -181,7 +186,6 @@ export default {
             nbHeures: nbHeures
           })
         })
-        this.compteurUpdate++
     },
     getProp(elem, key) {
       return elem[key]

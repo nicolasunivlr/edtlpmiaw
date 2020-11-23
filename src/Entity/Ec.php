@@ -29,7 +29,7 @@ class Ec
      * @ORM\Column(type="string", length=255)
      * @Groups({"read:ec", "write:ec","read:cours"})
      */
-    private $name;
+    private $nom;
 
     /**
      * @ORM\ManyToOne(targetEntity=TypeCours::class)
@@ -80,14 +80,14 @@ class Ec
         return $this->id;
     }
 
-    public function getName(): ?string
+    public function getNom(): ?string
     {
-        return $this->name;
+        return $this->nom;
     }
 
-    public function setName(string $name): self
+    public function setNom(string $nom): self
     {
-        $this->name = $name;
+        $this->name = $nom;
 
         return $this;
     }
