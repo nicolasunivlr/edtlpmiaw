@@ -87,7 +87,7 @@ class Ec
 
     public function setNom(string $nom): self
     {
-        $this->name = $nom;
+        $this->nom = $nom;
 
         return $this;
     }
