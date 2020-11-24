@@ -2,9 +2,9 @@
   "entrypoints": {
     "app": {
       "js": [
-        "/gestion/buildProd/runtime.edf6b8b0.js",
-        "/gestion/buildProd/0.1a32893b.js",
-        "/gestion/buildProd/app.68432f20.js"
+        "/gestion/buildProd/runtime.9cf8a1a7.js",
+        "/gestion/buildProd/0.d71f676c.js",
+        "/gestion/buildProd/app.5f12d22f.js"
       ],
       "css": [
         "/gestion/buildProd/0.2f720dbc.css",

@@ -14,6 +14,11 @@
       <li>On peut cliquer sur un cours pour ajouter un enseignant, une salle, ou un commentaire</li>
       <li>On tombe sur la semaine courante quand on utilise le menu pour aller sur l'emploi du temps</li>
     </ul>
+    <h2>Préférences</h2>
+    <ul>
+      <li>On peut activer le contrôle du placement des cours.(béta)</li>
+    </ul>
+    <h3>Version 0.8</h3>
   </div>
 </template>
 
