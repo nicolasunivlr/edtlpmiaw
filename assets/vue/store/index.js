@@ -159,9 +159,25 @@ export default new Vuex.Store({
                     console.log(error)
                 })
             })
+        },
+        triEcs(state, data) {
+            state.ecs.sort((a, b) => {
+                let retour = 0
+                if (a.nom < b.nom)
+                    retour =  -1
+                if (a.nom > b.nom)
+                    retour = 1
+                if (data.order)
+                    return retour
+                else return retour * -1
+
+            })
         }
     },
     actions: {
+        triEcsAction(context, data) {
+          context.commit('triEcs', data)
+        },
         initialiseStoreAction(context) {
           context.commit('initialiseStore')
         },

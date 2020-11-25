@@ -9,18 +9,18 @@ Vue.use(VueRouter)
 
 const routes = [
     {
-        path: "/login",
-        name: "login",
-        component: Login,
-        texte: 'Connexion',
-        icon: 'mdi-account'
-    },
-    {
         path: '/',
         name: 'Home',
         component: Home,
         texte: 'Accueil',
         icon: 'mdi-home'
+    },
+    {
+        path: "/login",
+        name: "login",
+        component: Login,
+        texte: 'Connexion',
+        icon: 'mdi-account'
     },
     {
         path: '/planning',
@@ -38,14 +38,14 @@ const routes = [
         props: (route) => ({ semaine: route.params.semaine || NaN })
     },
     {
-        path: '/about',
-        name: 'About',
-        texte: 'A propos',
+        path: '/aide',
+        name: 'Aide',
+        texte: 'Aide',
         icon: 'mdi-help-circle',
         // route level code-splitting
         // this generates a separate chunk (about.[hash].js) for this route
         // which is lazy-loaded when the route is visited.
-        component: () => import(/* webpackChunkName: "about" */ '../views/About.vue')
+        component: () => import(/* webpackChunkName: "about" */ '../views/Aide.vue')
     }
 ]
 

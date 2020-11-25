@@ -63,11 +63,13 @@ export default {
   },
   created() {
     this.$store.dispatch('initialiseStoreAction')
-    console.log("chargement api")
-    this.$store.dispatch('getDataAction')
-        .catch(()=>{
-          this.deconnexion()
-        })
+    if (this.connecte) {
+      console.log("chargement api")
+      this.$store.dispatch('getDataAction')
+          .catch(() => {
+            this.deconnexion()
+          })
+    }
   },
   computed: {
     placement: {

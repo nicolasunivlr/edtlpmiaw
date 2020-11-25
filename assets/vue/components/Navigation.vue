@@ -36,12 +36,18 @@
               return this.$store.state.connexion.connecte
           },
           routes() {
-              return this.$router.options.routes
+            if (this.connecte)
+              return this.$router.options.routes.filter(r => r.name !== 'login')
+            else
+              return this.$router.options.routes.filter(r => r.name === 'login')
           }
         },
         methods: {
             action(route) {
-                this.fermetureMenu()
+              this.fermetureMenu()
+              if (route.name === 'Edt')
+                this.$router.push('/edt')
+              else
                 this.$router.push(route.path)
             },
             fermetureMenu() {

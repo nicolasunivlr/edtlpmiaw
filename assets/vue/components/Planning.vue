@@ -63,14 +63,15 @@
           </v-dialog>
         </v-toolbar>
       </template>
-      <template v-slot:header="headers">
+      <template v-slot:header="{ props: { headers } }">
         <thead>
         <tr>
-          <th v-for="header in headers.props.headers" :key="header.value" role="columnheader" scope="col" :aria-label="header.texte" class="text-center">
+          <th v-for="header in headers" :key="header.value" role="columnheader" scope="col" :aria-label="header.texte" class="text-center">
             <span v-if="header.texte.startsWith('S')">
               <router-link :to="{name: 'Edt', params: {semaine: parseInt(header.texte.substr(1),10)}}">{{ header.texte }}</router-link>
             </span>
             <span v-else-if="header.texte === 'Action'">&nbsp;</span>
+            <span v-else-if="header.value === 'nom'" @click="changeSort()">{{ header.texte }}<v-icon small>{{getFleche()}}</v-icon></span>
             <span v-else>{{ header.texte }}</span>
           </th>
         </tr>
@@ -147,6 +148,7 @@ export default {
         nbGroupes: 1,
         semaines: {}
       },
+      asc: null,
     }
   },
   computed: {
@@ -155,6 +157,20 @@ export default {
              ]),
   },
   methods: {
+    getFleche() {
+      if (this.asc === null)
+        return ""
+      if (this.asc)
+        return "mdi-arrow-up"
+      else
+        return "mdi-arrow-down"
+    },
+    changeSort() {
+      if (this.asc === null)
+        this.asc = true
+      this.$store.dispatch('triEcsAction', {order: this.asc})
+      this.asc = !this.asc
+    },
     filterEc (value, search, item) {
       return value != null &&
           search != null &&
