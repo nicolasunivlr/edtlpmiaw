@@ -20,7 +20,7 @@ export default new Vuex.Store({
         headers: [],
         ecs: [],
         promo: [],
-        types: [],
+        type: [],
         cours: [],
         copieCours: [],
         ecModifie: null,
@@ -130,8 +130,8 @@ export default new Vuex.Store({
             state.ecs = data['hydra:member']
             state.loading = false
         },
-        setDataTypes(state, data) {
-            state.types = data['hydra:member']
+        setDataType(state, data) {
+            state.type = data['hydra:member']
         },
         setDataPromo(state, data) {
             state.promo = data['hydra:member']
@@ -225,7 +225,7 @@ export default new Vuex.Store({
             ApiSf().get('type_cours')
                 .then(response => response.data)
                 .then(q => {
-                    context.commit("setDataTypes", q)
+                    context.commit("setDataType", q)
                 })
             ApiSf().get('promos')
                 .then(response => response.data)

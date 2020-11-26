@@ -19,47 +19,7 @@
             <template v-slot:activator="{ on, attrs }">
               <v-btn color="primary" dark class="mb-2" v-bind="attrs" v-on="on">Nouveau EC</v-btn>
             </template>
-            <v-card>
-              <v-card-title>
-                <span class="headline">Nouveau EC</span>
-              </v-card-title>
-              <v-card-text>
-                <v-container>
-                  <v-row>
-                    <v-col cols="12" sm="6" md="4">
-                      <v-text-field v-model="editedEc.nom" label="Nom de l'EC"></v-text-field>
-                    </v-col>
-                    <v-col cols="12" sm="6" md="4">
-                      <v-select :items="types" item-text="nom" item-value="nom" label="Type" v-model="editedEc.type" return-object></v-select>
-                    </v-col>
-                    <v-col cols="12" sm="6" md="4">
-                      <v-select :items="promo" item-text="nom" item-value="nom" label="Promo" v-model="editedEc.promo" return-object></v-select>
-                    </v-col>
-                  </v-row>
-                  <v-row>
-                    <v-col cols="12" sm="6" md="4">
-                      <v-text-field v-model="editedEc.nbGroupes" label="Nombre de groupes"></v-text-field>
-                    </v-col>
-                    <v-col cols="12" sm="6" md="4">
-                      <v-text-field v-model="editedEc.duree" label="Duree"></v-text-field>
-                    </v-col>
-                    <v-col cols="12" sm="6" md="4">
-                      <v-text-field v-model="editedEc.vol" label="Volume"></v-text-field>
-                    </v-col>
-                  </v-row>
-                  <v-row>
-                    <v-col cols="12" sm="12" md="12">
-                      <v-color-picker class="ma-2" hide-inputs v-model="editedEc.color"></v-color-picker>
-                    </v-col>
-                  </v-row>
-                </v-container>
-              </v-card-text>
-              <v-card-actions>
-                <v-spacer></v-spacer>
-                <v-btn color="blue darken-1" text @click="closeNew">Annuler</v-btn>
-                <v-btn color="blue darken-1" text @click="saveNew">Sauvegarder</v-btn>
-              </v-card-actions>
-            </v-card>
+            <NewEC :edited-ec="editedEc" :promo="promo" :type="type" @save="saveNew" @close="closeNew"></NewEC>
           </v-dialog>
         </v-toolbar>
       </template>
@@ -116,10 +76,13 @@
 <script>
 
 import { mapState } from 'vuex'
+import NewEC from "./NewEC";
 
 export default {
   name: 'Planning',
-  components: {},
+  components: {
+    NewEC
+  },
   data() {
     return {
       recherche: '',
@@ -153,7 +116,7 @@ export default {
   },
   computed: {
     ...mapState([
-        'ecs', 'headers', 'promo', 'types', 'loading', 'overlay', 'annee'
+        'ecs', 'headers', 'promo', 'type', 'loading', 'overlay', 'annee'
              ]),
   },
   methods: {
