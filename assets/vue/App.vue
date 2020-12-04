@@ -65,10 +65,11 @@ export default {
     this.$store.dispatch('initialiseStoreAction')
     if (this.connecte) {
       console.log("chargement api")
+      this.$store.dispatch('getCoursPlacesAction')
       this.$store.dispatch('getDataAction')
           .catch(() => {
-            this.deconnexion()
-          })
+        this.deconnexion()
+      })
     }
   },
   computed: {

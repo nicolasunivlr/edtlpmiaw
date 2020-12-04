@@ -31,6 +31,7 @@ export default new Vuex.Store({
         },
         loading: true,
         placement: false,
+        coursPlaces: [],
     },
     plugins: [
         MAJ
@@ -72,7 +73,12 @@ export default new Vuex.Store({
         },
         updateCoursApi: (state, data) => {
             const cours = {...data.cours}
-            cours.ec =cours.ec['@id']
+            if (cours.ec.nom === 'Projet Tut') {
+                cours.ec = null
+            } else {
+                cours.ec = cours.ec['@id']
+            }
+            cours.duree = parseFloat(cours.duree)
             cours.groupe = parseInt(cours.groupe)
             ApiSf().put('cours/' + cours.id, cours).then(() => {
                 console.log('axios put cours')
@@ -100,19 +106,37 @@ export default new Vuex.Store({
             })
         },
         createCoursApi: (state, data) => {
-            const cours = {...data}
-            cours.ec =state.ecModifie.ec['@id'] ? state.ecModifie.ec['@id'] : '/api/ecs/'+state.ecModifie.ec.id
-            cours.groupe = parseInt(cours.groupe)
+            let cours = {...data}
+            if (state.ecModifie !== null) {
+                cours.ec = state.ecModifie.ec['@id'] ? state.ecModifie.ec['@id'] : '/api/ecs/' + state.ecModifie.ec.id
+                cours.groupe = parseInt(cours.groupe)
+            }
+            else {
+                cours = cours.cours
+                state.cours.push(cours)
+            }
             ApiSf().post('cours', cours).then((reponse) => {
                 console.log('axios post cours')
                 const indice = state.cours.findIndex(c => c.id === cours.id)
-                state.cours[indice].id = reponse.data.id
+                // on parcours les cours avec comme index l'id du cours.
+                state.cours[indice] = reponse.data
             }).then(() => {
                 // on supprime l'overlay
             }).catch(error => {
                 console.log(error)
             })
 
+        },
+        deleteCours: (state, data) => {
+            let cours = {...data.cours}
+            state.cours = state.cours.filter( c => c.id !== cours.id )
+            ApiSf().delete('cours/'+cours.id).then((reponse) => {
+                console.log('axios delete cours')
+            }).then(() => {
+                // on supprime l'overlay
+            }).catch(error => {
+                console.log(error)
+            })
         },
         updateCours: (state, data) => {
             const cours = data.cours
@@ -138,10 +162,16 @@ export default new Vuex.Store({
         },
         setDataCours(state, data) {
             state.cours = data['hydra:member']
+            state.cours=state.cours.map(c =>
+                c.ec === undefined ? { ...c, ec: {nom: 'Projet Tut', color: '#999', type: { nom: ''}, promo: {nom: ''}} } : c
+            )
+            //console.log(state.cours)
+        },
+        setCoursPlaces(state, data) {
+            state.coursPlaces = data['hydra:member']
         },
         modificationCours(state, {data, getters}) {
             state.cours = getters.modifsCours(data)
-            //console.log(state.cours)
         },
         // state et API
         suppCoursAll(state, getters) {
@@ -195,15 +225,30 @@ export default new Vuex.Store({
             state.coursAPost.forEach(c => commit('createCoursApi', c))
             state.coursAPost = []
             commit('updateEcsApi', data.ec)
+            state.ecModifie = null
+        },
+        deleteCoursAction(context,data) {
+            context.commit('deleteCours', data)
         },
         updateCoursAction(context, data) {
             context.commit('updateCours', data)
         },
         updateCoursApiAction(context, data) {
-            context.commit('updateCoursApi', data)
+            if (data.cours.ec === undefined) {
+                context.commit('createCoursApi', data)
+            } else {
+                context.commit('updateCoursApi', data)
+            }
         },
         saveEcsAction(context) {
             context.commit('saveEcs')
+        },
+        getCoursPlacesAction(context) {
+            return ApiSf().get('cours?place='+1)
+                .then(response => response.data)
+                .then(response => {
+                    context.commit("setCoursPlaces", response)
+                })
         },
         getDataAction(context) {
             ApiSf().get('headers')
@@ -227,7 +272,7 @@ export default new Vuex.Store({
                 .then(q => {
                     context.commit("setDataType", q)
                 })
-            ApiSf().get('promos')
+            return ApiSf().get('promos')
                 .then(response => response.data)
                 .then(q => {
                     context.commit("setDataPromo", q)
@@ -268,6 +313,7 @@ export default new Vuex.Store({
                                         nom: ec.type.nom
                                     },
                                 },
+                                duree: ec.duree,
                                 semaine: ecModifie.semaine,
                                 place: false
                             }
@@ -277,6 +323,9 @@ export default new Vuex.Store({
                                 cours.groupe = i
                             }
                             if (ec.promo.nom === 'AP' && ec.type.nom === 'TD') {
+                                cours.groupe = 3
+                            }
+                            if (ec.promo.nom === 'DFS' && ec.type.nom === 'TD') {
                                 cours.groupe = 3
                             }
                             nouveauxCours.push(cours)
@@ -295,6 +344,9 @@ export default new Vuex.Store({
         coursTousByEcId: (state) => (ecModifie) => {
             // cours qui sont impactés par la modifcation du planning
             return state.copieCours.filter(c => c.ec.id === ecModifie.ec.id && c.semaine === ecModifie.semaine)
+        },
+        getNbHeuresEffectives: (state) => (ec, semaine) => {
+            return 0
         }
     },
     modules: {},

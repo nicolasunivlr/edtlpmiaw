@@ -43,7 +43,14 @@
             <v-icon v-if="col.value==='action'" small class="mr-2" @click="editItem(items.item)">mdi-pencil</v-icon>
             <v-edit-dialog v-else-if="col.value !== 'total' && col.value !== 'nom' && col.value !== 'promo'"
                            :return-value.sync="colValue" @save="save()" @cancel="cancel" @open="open" @close="close">
-              <div>{{ getNbHeures(items.item, col.value) }}</div>
+              <template v-if="getNbHeures(items.item, col.value)===''"><div>&nbsp;</div></template>
+              <template v-else-if="getNbHeures(items.item, col.value) == getNbHeuresEffectives(items.item, col.value)">
+                <div class="vert">{{getNbHeures(items.item, col.value)}}</div>
+              </template>
+              <template v-else-if="getNbHeures(items.item, col.value) < getNbHeuresEffectives(items.item, col.value)">
+                <div class="rouge">{{getNbHeuresEffectives(items.item, col.value)}}({{getNbHeures(items.item, col.value)}})</div>
+              </template>
+              <template v-else>{{getNbHeuresEffectives(items.item, col.value)}}({{getNbHeures(items.item, col.value)}})</template>
               <template v-slot:input>
                 <div class="mt-4 title">{{ items.item.nom }}-{{ items.item.type.nom }} : {{ col.value }}</div>
                 <!-- :value et @input remplacent le v-model -->
@@ -51,8 +58,8 @@
                               label="Nb heures" single-line autofocus></v-text-field>
               </template>
             </v-edit-dialog>
-            <v-chip v-else-if="col.value === 'total'" :color="getColor(getHeuresTotales(items.item),items.item.vol)">
-              {{ getHeuresTotales(items.item) }}h
+            <v-chip v-else-if="col.value === 'total'" :color="getColor(getNbHeuresEffectivesEc(items.item),items.item.vol)">
+              {{ getNbHeuresEffectivesEc(items.item) }}h
             </v-chip>
             <v-tooltip v-else-if="col.value === 'nom'" right>
               <template v-slot:activator="{ on, attrs }">
@@ -76,7 +83,7 @@
 <script>
 
 import { mapState } from 'vuex'
-import NewEC from "./NewEC";
+import NewEC from "./NewEC"
 
 export default {
   name: 'Planning',
@@ -118,6 +125,9 @@ export default {
     ...mapState([
         'ecs', 'headers', 'promo', 'type', 'loading', 'overlay', 'annee'
              ]),
+  },
+  created() {
+
   },
   methods: {
     getFleche() {
@@ -169,8 +179,26 @@ export default {
     getProp(elem, key) {
       return elem[key]
     },
-    getNbHeures(elem, key) {
-      return elem.semaines[key] ? elem.semaines[key] : ''
+    getNbHeures(ec, semaine) {
+      return ec.semaines[semaine] ? ec.semaines[semaine] : ''
+    },
+    getNbHeuresEffectivesEc(ec) {
+      let nbHeures = 0
+      // c.ec !== undefined car les projet tut n'ont pas d'ec...
+      const coursSemaineEcPlaces = this.$store.state.coursPlaces.filter(c => c.ec !== undefined && c.ec.id === ec.id)
+      coursSemaineEcPlaces.forEach(c=> nbHeures = nbHeures + c.duree)
+      return nbHeures/ec.nbGroupes
+    },
+    getNbHeuresEffectives(ec,semaine) {
+      if (this.getNbHeures(ec, semaine) === '') {
+        return ''
+      } else {
+        let nbHeures = 0
+        // c.ec !== undefined car les projet tut n'ont pas d'ec...
+        const coursSemaineEcPlaces = this.$store.state.coursPlaces.filter(c => c.ec !== undefined && c.semaine === semaine && c.ec.id === ec.id)
+        coursSemaineEcPlaces.forEach(c=> nbHeures = nbHeures + c.duree)
+        return nbHeures/ec.nbGroupes
+      }
     },
     save() {
       this.snack = true
@@ -224,6 +252,16 @@ export default {
 </script>
 
 <style scoped>
+
+.vert {
+  color: darkgreen;
+  font-weight: bold;
+}
+
+.rouge {
+  color: darkred;
+  font-weight: bold;
+}
 
 .drop-list {
   flex-wrap: wrap;

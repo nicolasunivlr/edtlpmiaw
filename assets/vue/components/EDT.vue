@@ -6,19 +6,23 @@
           size="64"
       ></v-progress-circular>
     </v-overlay>
-    <h2>Cours à placer
-      <router-link :to="{name: 'Planning'}">Planning</router-link>
-    </h2>
+    <v-toolbar flat>
+      <v-toolbar-title >Cours à placer</v-toolbar-title>
+      <v-spacer></v-spacer>
+      <v-btn color="grey" large @click="newProjetTut">Projets Tut<v-icon dark right>mdi-plus</v-icon></v-btn>
+      <v-spacer></v-spacer>
+      <v-btn color="primary" large @click="$router.push('/planning')">Retour au planning</v-btn>
+    </v-toolbar>
     <drop-list :items="cours" @insert="retireCours">
       <template v-slot:item="{item}">
         <drag :key="item.id" class="chip" :data="item">
-          <v-chip :color="item.ec.color" outlined @click="showCours(item)">{{ item.ec.type.nom }}:{{ item.ec.nom }}&#45;&#45;groupe{{ item.groupe }}&#45;&#45;{{ item.ec.duree }}h</v-chip>
+          <v-chip v-if="item.ec" :color="item.ec.color" outlined @click="showCours(item)">{{ item.ec.type.nom }}:{{ item.ec.nom }}&#45;&#45;groupe{{ item.groupe }}&#45;&#45;{{ item.duree }}h</v-chip>
         </drag>
       </template>
       <template v-slot:feedback="{data}">
         <div class="chip" :key="data.id">
           <v-chip color="primary" outlined>
-            {{ data.ec.type.nom }}:{{ data.ec.nom }}&#45;&#45;groupe{{ data.groupe }}&#45;&#45;{{ data.ec.duree }}h
+            {{ data.ec.type.nom }}:{{ data.ec.nom }}&#45;&#45;groupe{{ data.groupe }}&#45;&#45;{{ data.duree }}h
           </v-chip>
         </div>
       </template>
@@ -42,7 +46,7 @@
                 <drag v-if="heureToCreneau(creneau.date).posLeft===jour && heureToCreneau(creneau.date).posTop===index" :key="creneau.id" class="chip"
                       :data="creneau">
                   <div :class="getCoursClass(creneau)"
-                       :style="{'background': creneau.ec.color, 'height': calcHauteur(creneau.ec.duree),   }"
+                       :style="{'background': creneau.ec.color, 'height': calcHauteur(creneau.duree),   }"
                        @click="showPlaces(creneau)">
                     <p class="titre">{{ creneau.ec.type.nom }} - {{ creneau.ec.nom }}</p>
                     <p>{{ creneau.ec.promo.nom }}</p>
@@ -57,31 +61,8 @@
         </tbody>
       </template>
     </v-simple-table>
-    <v-dialog v-model="dialog" max-width="500px">
-      <v-card>
-        <v-card-title>
-          <span class="headline">Détail du cours</span>
-        </v-card-title>
-        <v-card-text>
-          <v-container>
-            <v-row>
-              <v-text-field v-model="editedCours.enseignant" label="Nom de l'enseignant"></v-text-field>
-            </v-row>
-            <v-row>
-              <v-text-field v-model="editedCours.salle" label="Salle"></v-text-field>
-            </v-row>
-            <v-row>
-              <v-text-field v-model="editedCours.remarque" label="Remarque"></v-text-field>
-            </v-row>
-          </v-container>
-        </v-card-text>
-        <v-card-actions>
-          <v-spacer></v-spacer>
-          <v-btn color="blue darken-1" text @click="close">Annuler</v-btn>
-          <v-btn color="blue darken-1" text @click="save">Sauvegarder</v-btn>
-        </v-card-actions>
-      </v-card>
-    </v-dialog>
+    <cours :dialog="dialogCours" :edited-cours="editedCours" @save="saveCours" @close="close"></cours>
+    <projet-tut :dialog="dialogProjetTut" :projet-tut="editedCours" @save="saveCours" @close="close"></projet-tut>
   </v-app>
 </template>
 
@@ -90,6 +71,8 @@
 import {Drag, Drop, DropList} from "vue-easy-dnd"
 import ApiSf from "../api/apiSf";
 import moment from 'moment'
+import Cours from "./Cours";
+import ProjetTut from "./ProjetTut";
 moment.locale('fr')
 
 export default {
@@ -97,26 +80,23 @@ export default {
   components: {
     Drag,
     DropList,
-    Drop
+    Drop,
+    Cours,
+    ProjetTut
   },
   data() {
     return {
       ecart: 15,
-      dialog: false,
+      dialogCours: false,
+      dialogProjetTut: false,
       paramSemaine: parseInt(this.$route.params.semaine),
       numSemaine: this.getNumSemaine(),
       annee: 2020,
       debut: 8,
       fin: 20,
       editedCours: {
-        enseignant: '',
-        remarque: '',
-        salle: ''
       },
       defaultCours: {
-        enseignant: '',
-        remarque: '',
-        salle: ''
       },
       editedIndex: -1,
       editCours: false,
@@ -146,7 +126,12 @@ export default {
     },
   },
   methods: {
+    newProjetTut() {
+      this.dialogProjetTut = true
+    },
     compareCours(a,b) {
+      if (a.ec === undefined || b.ec === undefined)
+        return 0
       if (a.ec.nom < b.ec.nom)
         return -1
       if (a.ec.nom > b.ec.nom)
@@ -196,19 +181,39 @@ export default {
         this.editedIndex = this.places.indexOf(cours)
         this.editedCours = Object.assign({}, cours)
       }
-      this.dialog = true
-    },
-    save() {
-      if (this.editCours) {
-        this.$set(this.cours[this.editedIndex], 'enseignant', this.editedCours.enseignant)
-        Object.assign(this.cours[this.editedIndex], this.editedCours)
+      if (this.editedCours.id === undefined || this.editedCours.ec.nom === 'Projet Tut') {
+        this.dialogProjetTut = true
       } else {
-        this.$set(this.places[this.editedIndex], 'enseignant', this.editedCours.enseignant)
-        Object.assign(this.places[this.editedIndex], this.editedCours)
+        this.dialogCours = true
+      }
+    },
+    saveCours() {
+      if (this.editedCours.id !== undefined) {
+        // if (typeof this.editedCours.remarque === 'object')
+        //   this.editedCours.remarque = this.editedCours.remarque.nom
+        if (this.editCours) {
+          this.$set(this.cours[this.editedIndex], 'enseignant', this.editedCours.enseignant)
+          Object.assign(this.cours[this.editedIndex], this.editedCours)
+        } else {
+          this.$set(this.places[this.editedIndex], 'enseignant', this.editedCours.enseignant)
+          Object.assign(this.places[this.editedIndex], this.editedCours)
+        }
+      } else {
+        this.editedCours.duree = parseFloat(this.editedCours.duree)
+        this.editedCours.semaine = this.numSemString
+        this.editedCours.place = false
+        //this.editedCours.remarque = this.editedCours.remarque.nom
+        this.editedCours.groupe = 1
+        this.editedCours.id = this.$store.state.cours.length -1
+        //this.cours.push(this.editedCours)
+        //this.$set(this.cours[this.cours.length -1], 'enseignant', '')
+        // if (this.editedCours.remarque === 'DFS' || this.editedCours.remarque === 'AP')
+        //   this.editedCours.groupe = 3
       }
       this.$store.dispatch('updateCoursApiAction', {
         cours: this.editedCours
       })
+      this.editedCours.ec = {nom: 'Projet Tut', color: '#999', type: { nom: ''}, promo: {nom: ''}}
       this.close()
     },
     close() {
@@ -216,7 +221,8 @@ export default {
         this.editedCours = Object.assign({}, this.defaultCours)
         this.editedIndex = -1
       })
-      this.dialog = false
+      this.dialogCours = false
+      this.dialogProjetTut = false
     },
     verifPlacement(cours, jour, index) {
       if (!this.$store.state.placement) {
@@ -228,8 +234,8 @@ export default {
             p.id !== cours.id
             // TODO: remplacer posLeft et posTop par la fonction heureToCreneau
             && this.heureToCreneau(p.date).posLeft === jour
-            && index > this.heureToCreneau(p.date).posTop - (cours.ec.duree * (60 / this.ecart))
-            && index < this.heureToCreneau(p.date).posTop + (p.ec.duree * (60 / this.ecart))
+            && index > this.heureToCreneau(p.date).posTop - (cours.duree * (60 / this.ecart))
+            && index < this.heureToCreneau(p.date).posTop + (p.duree * (60 / this.ecart))
             && (
                 p.groupe === cours.groupe
                 || (p.ec.type.nom === 'CM' && p.ec.promo.nom === 'Tous')
@@ -245,8 +251,8 @@ export default {
     },
     getCoursClass(cours) {
       let tabClass = ['creneau']
-      if (cours.ec.type.nom === 'CM' || cours.ec.type.nom === 'Autre') {
-        if (cours.ec.promo.nom === 'Tous') {
+      if (cours.ec.type.nom === 'CM' || cours.ec.type.nom === 'Autre' || cours.ec.nom === 'Projet Tut') {
+        if (cours.ec.promo.nom === 'Tous' || cours.ec.nom === 'Projet Tut') {
           tabClass.push('cm')
         } else {
           tabClass.push('cmdemi')
@@ -260,6 +266,9 @@ export default {
         tabClass.push('groupe'+cours.groupe + 'td')
       } else {
         tabClass.push('groupe'+cours.groupe)
+      }
+      if (cours.ec.nom === 'Projet Tut') {
+        tabClass.push('arriere')
       }
       return tabClass
     },
@@ -362,11 +371,13 @@ export default {
   margin: 0;
   padding: 0;
   font-size: 0.75rem;
+  z-index: 10;
 }
 
 .creneau p {
   margin: 0.1rem;
   padding: 0;
+
 }
 
 * {
@@ -466,6 +477,10 @@ tr > th, tr > td {
 .groupe4 {
   left: 75%;
   border: thin solid blueviolet;
+}
+
+.arriere {
+  z-index: 1;
 }
 
 .titre {

@@ -16,7 +16,7 @@ use ApiPlatform\Core\Bridge\Doctrine\Orm\Filter\SearchFilter;
  *     normalizationContext={"groups"={"read:cours"}},
  *     denormalizationContext={"groups"={"write:cours"}},
  * )
- * @ApiFilter(SearchFilter::class, properties={"semaine": "exact"})
+ * @ApiFilter(SearchFilter::class, properties={"semaine": "exact", "ec": "exact", "place":"exact"})
  */
 class Cours
 {
@@ -30,7 +30,7 @@ class Cours
 
     /**
      * @ORM\ManyToOne(targetEntity=Ec::class)
-     * @ORM\JoinColumn(nullable=false)
+     * @ORM\JoinColumn(nullable=true)
      * @Groups({"read:cours", "write:cours"})
      */
     private $ec;
@@ -76,6 +76,16 @@ class Cours
      * @Groups({"read:cours", "write:cours"})
      */
     private $date;
+
+    /**
+     * @ORM\Column(type="float", nullable=true)
+     * @Groups({"read:cours", "write:cours"})
+     * UPDATE cours
+     *    INNER JOIN ec
+     *    ON cours.ec_id = ec.id
+     *    SET cours.duree = ec.duree;
+     */
+    private $duree;
 
     public function getId(): ?int
     {
@@ -174,6 +184,18 @@ class Cours
     public function setDate(?\DateTimeInterface $date): self
     {
         $this->date = $date;
+
+        return $this;
+    }
+
+    public function getDuree(): ?float
+    {
+        return $this->duree;
+    }
+
+    public function setDuree(?float $duree): self
+    {
+        $this->duree = $duree;
 
         return $this;
     }
