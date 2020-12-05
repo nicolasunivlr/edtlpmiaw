@@ -33,7 +33,7 @@
         <tr>
           <th class="text-center"><span class="prev" @click="prevWeek">&lt;</span> Semaine {{ numSemaine }} <span
               class="next" @click="nextWeek">&gt;</span></th>
-          <th v-for="index in 5" :key="index" class="text-center jour">{{ dateEnFrancais(getDay(index - 1)) }}</th>
+          <th v-for="index in 5" :key="index" class="text-center jour">{{ getDay(index) }}</th>
         </tr>
         </thead>
         <tbody class="container">
@@ -91,7 +91,6 @@ export default {
       dialogProjetTut: false,
       paramSemaine: parseInt(this.$route.params.semaine),
       numSemaine: this.getNumSemaine(),
-      annee: 2020,
       debut: 8,
       fin: 20,
       editedCours: {
@@ -106,17 +105,18 @@ export default {
     this.callApi()
   },
   computed: {
+    annee() {
+      if (this.numSemaine > 30) {
+        return this.$store.state.annee
+      } else {
+        return this.$store.state.annee + 1
+      }
+    },
     overlay() {
       return this.$store.state.overlay
     },
     numSemString() {
       return 's' + this.numSemaine
-    },
-    firstTime() {
-      const year = 2020;
-      const firstDayOfYear = new Date(year, 0, 1).getDay()
-      const d = new Date("Jan 01, " + year + " 01:00:00");
-      return d.getTime() - (3600000 * 24 * (firstDayOfYear - 1)) + 604800000 * (this.numSemaine - 1)
     },
     places() {
       return this.$store.state.cours.filter(c => c.semaine === this.numSemString && c.place)
@@ -285,15 +285,8 @@ export default {
       }
     },
     getDay(inc) {
-      return new Date(this.firstTime + 86400000 * inc);
-    },
-    dateEnFrancais(date) {
-      const options = {
-        weekday: 'long',
-        month: "long",
-        day: "numeric"
-      };
-      return date.toLocaleDateString('fr-FR', options)
+      //return new Date(this.firstTime + 86400000 * inc);
+      return moment(this.numSemaine+' '+this.annee,'ww gggg').add({ 'd': inc-1}).format('dddd D MMMM')
     },
     prevWeek() {
       if (this.numSemaine === 1)
