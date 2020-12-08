@@ -116,7 +116,11 @@ export default {
       return this.$store.state.overlay
     },
     numSemString() {
-      return 's' + this.numSemaine
+      let num = this.numSemaine
+      if (num < 10) {
+        num = '0'+this.numSemaine
+      }
+      return 's' + num
     },
     places() {
       return this.$store.state.cours.filter(c => c.semaine === this.numSemString && c.place)
@@ -148,7 +152,7 @@ export default {
     },
     callApi() {
       this.$store.state.overlay = true
-      ApiSf().get('cours?semaine=s'+this.numSemaine)
+      ApiSf().get('cours?semaine='+this.numSemString)
           .then(response => response.data)
           .then(q => {
             this.$store.commit("setDataCours", q)
