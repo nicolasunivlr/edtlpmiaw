@@ -357,6 +357,10 @@ export default {
 
 <style scoped>
 
+.v-toolbar {
+  flex: 0;
+}
+
 .a-la-ligne {
   flex-basis: 100%;
   height: 0;
