@@ -27,9 +27,13 @@
         <thead>
         <tr>
           <th v-for="header in headers" :key="header.value" role="columnheader" scope="col" :aria-label="header.texte" class="text-center">
-            <span v-if="header.texte.startsWith('S')">
-              <router-link :to="{name: 'Edt', params: {semaine: parseInt(header.texte.substr(1),10)}}">{{ header.texte }}</router-link>
-            </span>
+            <v-tooltip bottom v-if="header.texte.startsWith('S')">
+              <template v-slot:activator="{ on, attrs }">
+                <span v-bind="attrs" v-on="on"><router-link :to="{name: 'Edt', params: {semaine: parseInt(header.texte.substr(1),10)}}">{{ header.texte }}</router-link></span>
+              </template>
+              <div>WDI: {{ getNbHeuresSemaine(header.value, 'WDI')}}h</div>
+              <div>DFS: {{ getNbHeuresSemaine(header.value, 'DFS')}}h</div>
+            </v-tooltip>
             <span v-else-if="header.texte === 'Action'">&nbsp;</span>
             <span v-else-if="header.value === 'nom'" @click="changeSort()">{{ header.texte }}<v-icon small>{{getFleche()}}</v-icon></span>
             <span v-else>{{ header.texte }}</span>
@@ -155,16 +159,6 @@ export default {
       else if (fait < afaire) return 'yellow'
       else return 'green'
     },
-    getHeuresTotales(ec) {
-      let total = 0
-      if(ec.semaines) {
-        for (const [s, nb] of Object.entries(ec.semaines)) {
-          s
-          total = total + parseFloat(nb)
-        }
-      }
-      return total
-    },
     updateProp(ec, semaine, nbHeures) {
         this.$nextTick(() => {
           // permet de mettre à jour de manière réactive l'elément
@@ -199,6 +193,26 @@ export default {
         coursSemaineEcPlaces.forEach(c=> nbHeures = nbHeures + c.duree)
         return nbHeures/ec.nbGroupes
       }
+    },
+    getHeuresTotales(ec) {
+      let total = 0
+      if(ec.semaines) {
+        for (const [s, nb] of Object.entries(ec.semaines)) {
+          s
+          total = total + parseFloat(nb)
+        }
+      }
+      return total
+    },
+    getNbHeuresSemaine(s, promo) {
+      // ne va pas car ne tient pas compte des filières WDI/ DFS, AP, non-AP
+      let nb = 0
+      this.$store.state.ecs.forEach((ec) => {
+        if (this.getNbHeures(ec,s) !== '' && (ec.promo.nom === 'Tous' || ec.promo.nom === promo)) {
+          nb += parseFloat(this.getNbHeures(ec,s))
+        }
+      })
+      return nb
     },
     save() {
       this.snack = true

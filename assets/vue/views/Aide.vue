@@ -11,6 +11,7 @@
         le nombre d'heures placé et celui entre parenthèses celui des heures totales de la semaine.</p>
         <p>En rouge quand le nombre d'heures effectives dépasse.</p></li>
       <li>Les Ecs peuvent être triés par nom en cliquant sur le libellé. Par défaut, ils sont classés par ordre de création</li>
+      <li>En survolant une semaine, on peut voir le nombre d'heures par promo (hors AP, non-AP)</li>
     </ul>
     <h2>Gestion de l'emploi du temps</h2>
     <ul>
@@ -25,7 +26,7 @@
     <ul>
       <li>On peut activer le contrôle du placement des cours.(béta)</li>
     </ul>
-    <h3>Version 0.9.3</h3>
+    <h3>Version 0.9.5</h3>
   </div>
 </template>
 
