@@ -13,9 +13,10 @@
       <v-spacer></v-spacer>
       <v-btn color="primary" large @click="$router.push('/planning')">Retour au planning</v-btn>
     </v-toolbar>
-    <drop-list :items="cours" @insert="retireCours">
+    <drop-list :items="cours" @insert="retireCours" :set="ancienEc=''">
       <template v-slot:item="{item}">
-        <drag :key="item.id" class="chip" :data="item">
+        <div :key="item.id+100" class="a-la-ligne" v-if="retourLigne(item.ec.nom, ancienEc)">&nbsp;</div>
+        <drag :key="item.id" class="chip" :data="item" :set="ancienEc=item.ec.nom">
           <v-chip v-if="item.ec" :color="item.ec.color" outlined @click="showCours(item)">{{ item.ec.type.nom }}:{{ item.ec.nom }}&#45;&#45;groupe{{ item.groupe }}&#45;&#45;{{ item.duree }}h</v-chip>
         </drag>
       </template>
@@ -130,6 +131,9 @@ export default {
     },
   },
   methods: {
+    retourLigne(ec, ancienEc) {
+      return ec !== ancienEc
+    },
     newProjetTut() {
       this.dialogProjetTut = true
     },
@@ -353,6 +357,11 @@ export default {
 
 <style scoped>
 
+.a-la-ligne {
+  flex-basis: 100%;
+  height: 0;
+}
+
 .drop-forbidden {
   background-color: rgba(255, 0, 0, 0.3);
 }
@@ -390,7 +399,7 @@ export default {
 }
 
 .chip {
-  margin: 0 10px;
+  margin: 10px;
 }
 .chip span {
   padding-left: 5px;
