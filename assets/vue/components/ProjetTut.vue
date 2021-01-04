@@ -9,9 +9,9 @@
           <v-row>
             <v-text-field v-model="projetTut.duree" label="Nombre d'heures"></v-text-field>
           </v-row>
-<!--          <v-row>-->
-<!--            <v-select :items="promo" item-text="nom" item-value="nom" label="Type" v-model="projetTut.remarque" return-object></v-select>-->
-<!--          </v-row>-->
+          <v-row>
+            <v-text-field v-model="projetTut.remarque" label="Remarque"></v-text-field>
+          </v-row>
         </v-container>
       </v-card-text>
       <v-card-actions>

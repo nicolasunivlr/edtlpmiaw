@@ -403,7 +403,7 @@ export default {
 }
 
 .chip {
-  margin: 10px;
+  margin: 0.5rem;
 }
 .chip span {
   padding-left: 5px;
