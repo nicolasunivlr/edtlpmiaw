@@ -139,12 +139,12 @@ export default {
   methods: {
     exportPdf() {
       html2canvas(document.querySelector('#capture')).then(canvas => {
-        let width = canvas.width
-        let height = canvas.height
+        const imgData = canvas.toDataURL('image/png');
         const pdf = new jsPDF('l', 'px', 'a4', true)
-        width = pdf.internal.pageSize.getWidth()
-        height = pdf.internal.pageSize.getHeight()
-        pdf.addImage(canvas, 'JPEG', 0, 0,width, height,'','NONE')
+        const imgProps= pdf.getImageProperties(imgData)
+        const pdfWidth = pdf.internal.pageSize.getWidth()
+        const pdfHeight = (imgProps.height * pdfWidth) / imgProps.width;
+        pdf.addImage(imgData, 'PNG', 0, 0,pdfWidth, pdfHeight,'','NONE')
         pdf.save("edt"+this.numSemString+".pdf")
       })
     },
