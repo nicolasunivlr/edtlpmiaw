@@ -11,6 +11,8 @@
       <v-spacer></v-spacer>
       <v-btn color="grey" large @click="newProjetTut">Projets Tut<v-icon dark right>mdi-plus</v-icon></v-btn>
       <v-spacer></v-spacer>
+      <v-btn color="primary" large @click="exportPdf">PDF</v-btn>
+      <v-spacer></v-spacer>
       <v-btn color="primary" large @click="$router.push('/planning')">Retour au planning</v-btn>
     </v-toolbar>
     <drop-list :items="cours" @insert="retireCours" :set="ancienEc=''">
@@ -42,21 +44,22 @@
           <th v-if="(index-1)%(60/ecart)===0" class="time"><span>{{ afficheHeure(index - 1) }}</span></th>
           <th v-else></th>
           <td v-for="jour in 5" :key="jour" :class="['jour-'+jour ,'heure-'+index]">
-            <drop @drop="placeCours" class="places relative" :accepts-data="(d) => verifPlacement(d, jour, index)">
-              <template v-for="creneau in places">
-                <drag v-if="heureToCreneau(creneau.date).posLeft===jour && heureToCreneau(creneau.date).posTop===index" :key="creneau.id" class="chip"
-                      :data="creneau">
-                  <div :class="getCoursClass(creneau)"
-                       :style="{'background': creneau.ec.color, 'height': calcHauteur(creneau.duree),   }"
-                       @click="showPlaces(creneau)">
-                    <p class="titre">{{ creneau.ec.type.nom }} - {{ creneau.ec.nom }}</p>
-                    <p>{{ creneau.ec.promo.nom }}</p>
-                    <p>{{ creneau.enseignant }} - {{ creneau.salle }}</p>
-                    <p>{{ creneau.remarque }}</p>
-                  </div>
-                </drag>
-              </template>
-            </drop>
+              <drop @drop="placeCours" class="places relative" :accepts-data="(d) => verifPlacement(d, jour, index)">
+                <template v-for="creneau in places">
+                  <drag v-if="heureToCreneau(creneau.date).posLeft===jour && heureToCreneau(creneau.date).posTop===index" :key="creneau.id" class="chip" :data="creneau">
+                    <transition name="glisse">
+                    <div :class="getCoursClass(creneau)"
+                         :style="{'background': creneau.ec.color, 'height': calcHauteur(creneau.duree),   }"
+                         @click="showPlaces(creneau)">
+                      <p class="titre">{{ creneau.ec.type.nom }} - {{ creneau.ec.nom }}</p>
+                      <p>{{ creneau.ec.promo.nom }}</p>
+                      <p>{{ creneau.enseignant }} - {{ creneau.salle }}</p>
+                      <p>{{ creneau.remarque }}</p>
+                    </div>
+                    </transition>
+                  </drag>
+                </template>
+              </drop>
           </td>
         </tr>
         </tbody>
@@ -131,6 +134,9 @@ export default {
     },
   },
   methods: {
+    exportPdf() {
+
+    },
     retourLigne(ec, ancienEc) {
       return ec !== ancienEc
     },
@@ -320,6 +326,10 @@ export default {
       this.$store.state.overlay = true
       let posLeft = parseInt(c.top.$el.parentNode.classList[0].split('-')[1])
       let posTop = parseInt(c.top.$el.parentNode.classList[1].split('-')[1])
+      const coursPresent=this.isPresent(c.id,c.data.groupe,posTop,posLeft)
+      if(coursPresent) {
+        coursPresent.date=c.data.date
+      }
       c.data.date=this.creneauToHeure(posTop, posLeft)
       this.$nextTick(() => {
         this.$store.dispatch('updateCoursAction', {
@@ -329,7 +339,19 @@ export default {
         this.$store.dispatch('updateCoursApiAction', {
           cours: c.data
         })
+        if (coursPresent) {
+          this.$store.dispatch('updateCoursApiAction', {
+            cours: coursPresent
+          })
+        }
       })
+    },
+    isPresent(id, groupe, top, left) {
+      const tabCours =  this.places.filter(c=> c.groupe===groupe && c.date === this.creneauToHeure(top,left) && c.id !== id )
+      if (tabCours.length === 0)
+        return false
+      else
+        return tabCours[0]
     },
     afficheHeure(index) {
       let heure = this.debut + index / (60 / this.ecart)
@@ -370,6 +392,14 @@ export default {
   background-color: rgba(255, 0, 0, 0.3);
 }
 
+.glisse-enter-active, .glisse-leave-active {
+  transition: opacity 3s;
+}
+
+.glisse-enter, .glisse-leave-to {
+  opacity: 0;
+}
+
 .prev, .next {
   font-size: 36px;
   position: relative;
@@ -405,6 +435,7 @@ export default {
 .chip {
   margin: 0.5rem;
 }
+
 .chip span {
   padding-left: 5px;
   padding-right: 5px;
