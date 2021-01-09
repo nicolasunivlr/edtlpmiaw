@@ -144,7 +144,7 @@ export default {
         const imgProps= pdf.getImageProperties(imgData)
         const pdfWidth = pdf.internal.pageSize.getWidth()
         const pdfHeight = (imgProps.height * pdfWidth) / imgProps.width;
-        pdf.addImage(imgData, 'PNG', 0, 0,pdfWidth, pdfHeight,'','NONE')
+        pdf.addImage(imgData, 'PNG', 0, 0,pdfWidth, pdfHeight,'','FAST')
         pdf.save("edt"+this.numSemString+".pdf")
       })
     },
