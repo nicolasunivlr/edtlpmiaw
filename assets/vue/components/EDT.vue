@@ -11,8 +11,7 @@
       <v-spacer></v-spacer>
       <v-btn color="grey" large @click="newProjetTut">Projets Tut<v-icon dark right>mdi-plus</v-icon></v-btn>
       <v-spacer></v-spacer>
-      <v-btn color="primary" large @click="exportPdf">PDF</v-btn>
-      <v-spacer></v-spacer>
+      <v-btn color="success" large @click="exportPdf">PDF</v-btn>&nbsp;
       <v-btn color="primary" large @click="$router.push('/planning')">Retour au planning</v-btn>
     </v-toolbar>
     <drop-list :items="cours" @insert="retireCours" :set="ancienEc=''">
@@ -30,6 +29,7 @@
         </div>
       </template>
     </drop-list>
+    <div id="capture">
     <v-simple-table dense>
       <template v-slot:default>
         <thead>
@@ -65,6 +65,7 @@
         </tbody>
       </template>
     </v-simple-table>
+    </div>
     <cours :dialog="dialogCours" :edited-cours="editedCours" @save="saveCours" @close="close"></cours>
     <projet-tut :dialog="dialogProjetTut" :projet-tut="editedCours" @save="saveCours" @close="close"></projet-tut>
   </v-app>
@@ -77,6 +78,8 @@ import ApiSf from "../api/apiSf";
 import moment from 'moment'
 import Cours from "./Cours";
 import ProjetTut from "./ProjetTut";
+import html2canvas from 'html2canvas'
+import { jsPDF } from "jspdf"
 moment.locale('fr')
 
 export default {
@@ -135,7 +138,15 @@ export default {
   },
   methods: {
     exportPdf() {
-
+      html2canvas(document.querySelector('#capture')).then(canvas => {
+        let width = canvas.width
+        let height = canvas.height
+        const pdf = new jsPDF('l', 'px', 'a4', true)
+        width = pdf.internal.pageSize.getWidth()
+        height = pdf.internal.pageSize.getHeight()
+        pdf.addImage(canvas, 'JPEG', 0, 0,width, height,'','NONE')
+        pdf.save("edt"+this.numSemString+".pdf")
+      })
     },
     retourLigne(ec, ancienEc) {
       return ec !== ancienEc
@@ -418,6 +429,10 @@ export default {
   margin: 0.1rem;
   padding: 0;
 
+}
+
+canvas {
+  display:none;
 }
 
 * {
