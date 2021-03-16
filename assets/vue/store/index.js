@@ -217,7 +217,11 @@ export default new Vuex.Store({
         updateEcsAction({state, commit, getters}, data) {
             state.overlay = true
             commit('saveCours', data)
-            commit('suppCoursAll', getters)
+            // TODO: A tester : il ne faudrait pas supprimer les cours existants si on augmente les horaires.
+            // c'est plus compliqué que cela car le fait de tout supprimer permet de recréer tout et pas seulement les cours en plus...
+            // if (data.nbHeuresAncien > data.nbHeures) {
+                commit('suppCoursAll', getters)
+            //}
             if (data.nbHeures !== -1) {
                 commit('updateEcs', data)
             }

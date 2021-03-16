@@ -160,13 +160,15 @@ export default {
       else return 'green'
     },
     updateProp(ec, semaine, nbHeures) {
+      const nbHeuresAncien = ec.nbHeures
         this.$nextTick(() => {
           // permet de mettre à jour de manière réactive l'elément
           this.$set(ec.semaines, semaine, nbHeures)
           this.$store.dispatch('updateEcsAction', {
             ec: ec,
             semaine: semaine,
-            nbHeures: nbHeures
+            nbHeures: nbHeures,
+            nbHeuresAncien: nbHeuresAncien
           })
         })
     },
