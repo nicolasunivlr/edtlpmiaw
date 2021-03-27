@@ -6,6 +6,10 @@ use App\Entity\Ec;
 use App\Entity\Header;
 use App\Entity\Promo;
 use App\Entity\TypeCours;
+use App\Entity\Utilisateur;
+use EasyCorp\Bundle\EasyAdminBundle\Config\Action;
+use EasyCorp\Bundle\EasyAdminBundle\Config\Actions;
+use EasyCorp\Bundle\EasyAdminBundle\Config\Crud;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Dashboard;
 use EasyCorp\Bundle\EasyAdminBundle\Config\MenuItem;
 use EasyCorp\Bundle\EasyAdminBundle\Controller\AbstractDashboardController;
@@ -20,10 +24,7 @@ class DashboardController extends AbstractDashboardController
      */
     public function index(): Response
     {
-        //return parent::index();
-        $routeBuilder = $this->get(CrudUrlGenerator::class)->build();
-
-        return $this->redirect($routeBuilder->setController(HeaderCrudController::class)->generateUrl());
+        return $this->render('admin/index.html.twig');
     }
 
     public function configureDashboard(): Dashboard
@@ -34,10 +35,25 @@ class DashboardController extends AbstractDashboardController
 
     public function configureMenuItems(): iterable
     {
-        yield MenuItem::linktoDashboard('Dashboard', 'fa fa-home');
+        yield MenuItem::linktoDashboard(false, 'fa fa-home');
         yield MenuItem::linkToCrud('Header', '', Header::class);
         yield MenuItem::linkToCrud('Promo', '', Promo::class);
         yield MenuItem::linkToCrud('TypeCours', '', TypeCours::class);
         yield MenuItem::linkToCrud('Ec', '', Ec::class);
+        yield MenuItem::linkToCrud('Enseignants', '', Utilisateur::class);
+        yield MenuItem::linkToRoute(false, 'fas fa-sign-out-alt', 'homepage');
+    }
+
+    public function configureActions(): Actions
+    {
+        $actions = parent::configureActions();
+        $actions
+            ->update(Crud::PAGE_INDEX, Action::EDIT, function (Action $action) {
+                return $action->setIcon('fa fa-edit')->setLabel(false);
+            })
+            ->update(Crud::PAGE_INDEX, Action::DELETE, function (Action $action) {
+                return $action->setIcon('fa fa-trash')->setLabel(false);
+            });
+        return $actions;
     }
 }

@@ -16,7 +16,7 @@ use ApiPlatform\Core\Bridge\Doctrine\Orm\Filter\SearchFilter;
  *     normalizationContext={"groups"={"read:cours"}},
  *     denormalizationContext={"groups"={"write:cours"}},
  * )
- * @ApiFilter(SearchFilter::class, properties={"semaine": "exact", "ec": "exact", "place":"exact"})
+ * @ApiFilter(SearchFilter::class, properties={"semaine": "exact", "ec": "exact", "place":"exact","ec.annee":"exact"})
  */
 class Cours
 {

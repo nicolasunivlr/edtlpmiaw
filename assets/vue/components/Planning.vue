@@ -2,7 +2,7 @@
   <v-app>
     <v-overlay :value="overlay">
       <v-progress-circular indeterminate size="256">
-        <h2 class="text-center">Mise à jour des enseignements...</h2>
+        <h2 class="text-center">Chargements des données...</h2>
       </v-progress-circular>
     </v-overlay>
     <p></p>
@@ -11,7 +11,9 @@
                   disable-pagination hide-default-header no-data-text="Aucun enseignement n'a été créé...">
       <template v-slot:top>
         <v-toolbar flat>
-          <v-toolbar-title>Planning de l'année {{ annee }}-{{ annee +1 }}</v-toolbar-title>
+          <v-toolbar-title>Planning de l'année
+            <v-select v-model="anneeSelect" :items="annees" item-text="texte" item-value="annee" single-line return-object></v-select>
+          </v-toolbar-title>
           <v-divider class="mx-4" inset vertical></v-divider>
           <v-text-field v-model="recherche" label="Recherche EC..."></v-text-field>
           <v-divider class="mx-4" inset vertical></v-divider>
@@ -29,7 +31,7 @@
           <th v-for="header in headers" :key="header.value" role="columnheader" scope="col" :aria-label="header.texte" class="text-center">
             <v-tooltip bottom v-if="header.texte.startsWith('S')">
               <template v-slot:activator="{ on, attrs }">
-                <span v-bind="attrs" v-on="on"><router-link :to="{name: 'Edt', params: {semaine: parseInt(header.texte.substr(1),10)}}">{{ header.texte }}</router-link></span>
+                <span v-bind="attrs" v-on="on"><router-link :to="{name: 'Edt', params: {semaine: parseInt(header.texte.substr(1),10), annee: annee}}">{{ header.texte }}</router-link></span>
               </template>
               <div>WDI: {{ getNbHeuresSemaine(header.value, 'WDI')}}h</div>
               <div>DFS: {{ getNbHeuresSemaine(header.value, 'DFS')}}h</div>
@@ -110,7 +112,8 @@ export default {
         color: '',
         duree: 0,
         nbGroupes: 1,
-        semaines: {}
+        semaines: {},
+        annee: 0
       },
       defaultEc: {
         nom: '',
@@ -120,15 +123,26 @@ export default {
         color: '',
         duree: 0,
         nbGroupes: 1,
-        semaines: {}
+        semaines: {},
+        annee: 0
       },
       asc: null,
+
+      annees: [{'texte': '2020-2021','annee':2020}, {'texte': '2021-2022','annee':2021}],
     }
   },
   computed: {
     ...mapState([
         'ecs', 'headers', 'promo', 'type', 'loading', 'overlay', 'annee'
              ]),
+    anneeSelect: {
+      get() {
+        return {'texte': this.annee+'-'+this.annee+1,'annee':this.annee}
+      },
+      set(obj) {
+        this.$store.state.annee=obj.annee
+      }
+    },
   },
   created() {
 
@@ -160,13 +174,15 @@ export default {
       else return 'green'
     },
     updateProp(ec, semaine, nbHeures) {
+      const nbHeuresAncien = ec.nbHeures
         this.$nextTick(() => {
           // permet de mettre à jour de manière réactive l'elément
           this.$set(ec.semaines, semaine, nbHeures)
           this.$store.dispatch('updateEcsAction', {
             ec: ec,
             semaine: semaine,
-            nbHeures: nbHeures
+            nbHeures: nbHeures,
+            nbHeuresAncien: nbHeuresAncien
           })
         })
     },
@@ -246,6 +262,7 @@ export default {
           nbHeures: -1
         })
       } else {
+        this.editedEc.annee = this.$store.state.annee
         this.ecs.push(this.editedEc)
         this.$store.dispatch('createEcsApiAction', this.editedEc)
       }
@@ -261,6 +278,9 @@ export default {
     dialog(val) {
       val || this.closeNew()
     },
+    anneeSelect(newVal) {
+      this.$store.dispatch('changeAnneeAction',newVal.annee)
+    }
   },
 }
 </script>

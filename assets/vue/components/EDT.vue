@@ -112,6 +112,13 @@ export default {
     this.callApi()
   },
   computed: {
+    numSemString() {
+      let num = this.numSemaine
+      if (num < 10) {
+        num = '0'+this.numSemaine
+      }
+      return 's' + num
+    },
     annee() {
       if (this.numSemaine > 30) {
         return this.$store.state.annee
@@ -121,13 +128,6 @@ export default {
     },
     overlay() {
       return this.$store.state.overlay
-    },
-    numSemString() {
-      let num = this.numSemaine
-      if (num < 10) {
-        num = '0'+this.numSemaine
-      }
-      return 's' + num
     },
     places() {
       return this.$store.state.cours.filter(c => c.semaine === this.numSemString && c.place)
@@ -173,7 +173,7 @@ export default {
     },
     callApi() {
       this.$store.state.overlay = true
-      ApiSf().get('cours?semaine='+this.numSemString)
+      ApiSf().get('cours?semaine='+this.numSemString+'&ec.annee='+this.$route.params.annee)
           .then(response => response.data)
           .then(q => {
             this.$store.commit("setDataCours", q)
@@ -302,15 +302,9 @@ export default {
         return parseInt(this.$route.params.semaine)
       } else {
         return moment().week()
-        /*const d = new Date();
-        const dayNum = d.getUTCDay() || 7;
-        d.setUTCDate(d.getUTCDate() + 4 - dayNum);
-        const yearStart = new Date(Date.UTC(d.getUTCFullYear(), 0, 1));
-        return Math.ceil((((d - yearStart) / 86400000) + 1) / 7)*/
       }
     },
     getDay(inc) {
-      //return new Date(this.firstTime + 86400000 * inc);
       return moment(this.numSemaine+' '+this.annee,'ww gggg').add({ 'd': inc-1}).format('dddd D MMMM')
     },
     prevWeek() {
@@ -384,6 +378,12 @@ export default {
         cours: c.data,
       })
     },
+  },
+  watch: {
+    $route(to) {
+      this.numSemaine=to.params.semaine
+      this.callApi()
+    }
   }
 }
 </script>

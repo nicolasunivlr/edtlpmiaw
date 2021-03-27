@@ -6,12 +6,13 @@
       <li>On crée un EC : duréé correspond à la durée d'un cours, volume correspond nombre d'heures globales de l'EC sur l'année</li>
       <li>On place les heures dans les semaines</li>
       <li>On peut modifier un EC en cliquant sur le crayon</li>
-      <li>Si on modifie les heures d'une semaine pour un EC, les cours sont à replacer</li>
+      <li>Si on modifie les heures d'une semaine pour un EC, tous les cours de l'EC sont à replacer</li>
       <li><p>Dans une case, si c'est en vert, c'est que toutes heures disponibles ont été placées.</p><p>Sinon, le premier nombre définit
-        le nombre d'heures placé et celui entre parenthèses celui des heures totales de la semaine.</p>
+        le nombre d'heures placées et celui entre parenthèses celui des heures totales de la semaine.</p>
         <p>En rouge quand le nombre d'heures effectives dépasse.</p></li>
       <li>Les Ecs peuvent être triés par nom en cliquant sur le libellé. Par défaut, ils sont classés par ordre de création</li>
       <li>En survolant une semaine, on peut voir le nombre d'heures par promo (hors AP, non-AP)</li>
+      <li>On peut changer d'année en la sélectionnant dans la liste déroulante en dessous de planning de l'année</li>
     </ul>
     <h2>Gestion de l'emploi du temps</h2>
     <ul>

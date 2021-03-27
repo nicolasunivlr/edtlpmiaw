@@ -2,10 +2,12 @@
 
 namespace App\Entity;
 
+use ApiPlatform\Core\Annotation\ApiFilter;
 use ApiPlatform\Core\Annotation\ApiResource;
 use App\Repository\EcRepository;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Serializer\Annotation\Groups;
+use ApiPlatform\Core\Bridge\Doctrine\Orm\Filter\SearchFilter;
 
 /**
  * @ORM\Entity(repositoryClass=EcRepository::class)
@@ -14,6 +16,7 @@ use Symfony\Component\Serializer\Annotation\Groups;
  *     normalizationContext={"groups"={"read:ec"}},
  *     denormalizationContext={"groups"={"write:ec"}},
  * )
+ * @ApiFilter(SearchFilter::class, properties={"annee": "exact"})
  */
 class Ec
 {
@@ -74,6 +77,12 @@ class Ec
      * @Groups({"read:ec", "write:ec"})
      */
     private $semaines = [];
+
+    /**
+     * @ORM\Column(type="integer", nullable=true)
+     * @Groups({"read:ec", "write:ec"})
+     */
+    private $annee;
 
     public function getId(): ?int
     {
@@ -172,6 +181,18 @@ class Ec
     public function setSemaines(?array $semaines): self
     {
         $this->semaines = $semaines;
+
+        return $this;
+    }
+
+    public function getAnnee(): ?int
+    {
+        return $this->annee;
+    }
+
+    public function setAnnee(?int $annee): self
+    {
+        $this->annee = $annee;
 
         return $this;
     }
