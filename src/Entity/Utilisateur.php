@@ -2,12 +2,18 @@
 
 namespace App\Entity;
 
+use ApiPlatform\Core\Annotation\ApiResource;
 use App\Repository\UtilisateurRepository;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Security\Core\User\UserInterface;
+use Symfony\Component\Serializer\Annotation\Groups;
 
 /**
  * @ORM\Entity(repositoryClass=UtilisateurRepository::class)
+ * @ApiResource(
+ *     paginationEnabled=false,
+ *     normalizationContext={"groups"={"read:user"}}
+ * )
  */
 class Utilisateur implements UserInterface
 {
@@ -33,6 +39,16 @@ class Utilisateur implements UserInterface
      * @ORM\Column(type="string")
      */
     private $password;
+
+    /**
+     * @ORM\Column(type="string", length=255, nullable=true)
+     */
+    private $prenom;
+
+    /**
+     * @ORM\Column(type="string", length=255, nullable=true)
+     */
+    private $nom;
 
     public function getId(): ?int
     {
@@ -76,6 +92,13 @@ class Utilisateur implements UserInterface
     }
 
     /**
+     * @Groups({"read:user"})
+     */
+    public function getNomComplet(): string  {
+        return $this->getPrenom().' '.strtoupper($this->getNom());
+    }
+
+    /**
      * @see UserInterface
      */
     public function getPassword(): string
@@ -105,5 +128,29 @@ class Utilisateur implements UserInterface
     {
         // If you store any temporary, sensitive data on the user, clear it here
         // $this->plainPassword = null;
+    }
+
+    public function getPrenom(): ?string
+    {
+        return $this->prenom;
+    }
+
+    public function setPrenom(?string $prenom): self
+    {
+        $this->prenom = $prenom;
+
+        return $this;
+    }
+
+    public function getNom(): ?string
+    {
+        return $this->nom;
+    }
+
+    public function setNom(?string $nom): self
+    {
+        $this->nom = $nom;
+
+        return $this;
     }
 }

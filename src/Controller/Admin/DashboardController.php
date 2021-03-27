@@ -6,6 +6,7 @@ use App\Entity\Ec;
 use App\Entity\Header;
 use App\Entity\Promo;
 use App\Entity\TypeCours;
+use App\Entity\Utilisateur;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Action;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Actions;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Crud;
@@ -39,6 +40,7 @@ class DashboardController extends AbstractDashboardController
         yield MenuItem::linkToCrud('Promo', '', Promo::class);
         yield MenuItem::linkToCrud('TypeCours', '', TypeCours::class);
         yield MenuItem::linkToCrud('Ec', '', Ec::class);
+        yield MenuItem::linkToCrud('Enseignants', '', Utilisateur::class);
         yield MenuItem::linkToRoute(false, 'fas fa-sign-out-alt', 'homepage');
     }
 

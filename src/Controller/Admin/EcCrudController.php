@@ -28,7 +28,8 @@ class EcCrudController extends AbstractCrudController
         $duree=NumberField::new('duree');
         $nbGroupes=NumberField::new('nbGroupes');
         $semaines=ArrayField::new('semaines');
-        return [ $name, $type, $vol, $promo, $color, $duree, $nbGroupes, $semaines  ];
+        $annee=NumberField::new('annee');
+        return [ $name, $type, $annee, $vol, $promo, $color, $duree, $nbGroupes, $semaines  ];
     }
 
 }

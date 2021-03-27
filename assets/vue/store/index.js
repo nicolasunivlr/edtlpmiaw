@@ -23,6 +23,7 @@ export default new Vuex.Store({
         type: [],
         cours: [],
         copieCours: [],
+        enseignants: [],
         ecModifie: null,
         coursAPost: [],
         connexion: {
@@ -63,6 +64,7 @@ export default new Vuex.Store({
             ec.vol = parseFloat(ec.vol)
             ec.duree = parseFloat(ec.duree)
             ec.nbGroupes = parseInt(ec.nbGroupes)
+            ec.annee = parseInt(ec.annee)
             ApiSf().put('ecs/' + ec.id, ec).then(() => {
                 console.log('axios put ec')
             }).then(() => {
@@ -95,6 +97,7 @@ export default new Vuex.Store({
             ec.vol = parseFloat(ec.vol)
             ec.duree = parseFloat(ec.duree)
             ec.nbGroupes = parseInt(ec.nbGroupes)
+            ec.annee = parseInt(ec.annee)
             ApiSf().post('ecs', ec).then((reponse) => {
                 // on affiche le snack pour dire sauvegarde en cours
                 console.log('axios post ec '+ reponse.data.id)
@@ -154,6 +157,9 @@ export default new Vuex.Store({
             state.ecs = data['hydra:member']
             state.loading = false
         },
+        setDataEnseignants(state, data) {
+            state.enseignants = data['hydra:member']
+        },
         setDataType(state, data) {
             state.type = data['hydra:member']
         },
@@ -202,7 +208,7 @@ export default new Vuex.Store({
                 else return retour * -1
 
             })
-        }
+        },
     },
     actions: {
         triEcsAction(context, data) {
@@ -213,6 +219,10 @@ export default new Vuex.Store({
         },
         createEcsApiAction(context, data) {
             context.commit('createEcsApi', data)
+        },
+        changeAnneeAction(context,annee) {
+            context.state.annee = annee
+            context.dispatch('getDataAction')
         },
         updateEcsAction({state, commit, getters}, data) {
             state.overlay = true
@@ -255,6 +265,7 @@ export default new Vuex.Store({
                 })
         },
         getDataAction(context) {
+            context.state.overlay = true
             ApiSf().get('headers')
                 .then(response => response.data)
                 .then(q => {
@@ -266,10 +277,15 @@ export default new Vuex.Store({
                         context.state.connexion.connecte = false
                     }
                 })
-            ApiSf().get('ecs')
+            ApiSf().get('ecs?annee='+context.state.annee)
                 .then(response => response.data)
                 .then(q => {
                     context.commit("setDataEcs", q)
+                })
+            ApiSf().get('utilisateurs')
+                .then(response => response.data)
+                .then(q => {
+                    context.commit("setDataEnseignants", q)
                 })
             ApiSf().get('type_cours')
                 .then(response => response.data)
@@ -280,6 +296,7 @@ export default new Vuex.Store({
                 .then(response => response.data)
                 .then(q => {
                     context.commit("setDataPromo", q)
+                    context.state.overlay = false
                 })
         },
     },
@@ -349,9 +366,9 @@ export default new Vuex.Store({
             // cours qui sont impactés par la modifcation du planning
             return state.copieCours.filter(c => c.ec.id === ecModifie.ec.id && c.semaine === ecModifie.semaine)
         },
-        getNbHeuresEffectives: (state) => (ec, semaine) => {
-            return 0
-        }
+        // getNbHeuresEffectives: (state) => (ec, semaine) => {
+        //     return 0
+        // }
     },
     modules: {},
 })

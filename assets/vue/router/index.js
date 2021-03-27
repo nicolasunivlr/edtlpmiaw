@@ -30,12 +30,12 @@ const routes = [
         icon: 'mdi-calendar-text'
     },
     {
-        path: '/edt/:semaine?',
+        path: '/edt/:annee/:semaine?',
         name: 'Edt',
         component: EDT,
         texte: 'EDT',
         icon: 'mdi-calendar-week',
-        props: (route) => ({ semaine: route.params.semaine || NaN })
+        props: (route) => ({ semaine: route.params.semaine || NaN, annee: route.params.annee || NaN })
     },
     {
         path: '/aide',
