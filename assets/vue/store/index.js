@@ -15,8 +15,9 @@ Vue.use(Vuex)
 
 export default new Vuex.Store({
     state: {
-        annee: 2020,
+        annee: 2021,
         overlay: false,
+        idProjetTut:'',
         headers: [],
         ecs: [],
         promo: [],
@@ -154,7 +155,9 @@ export default new Vuex.Store({
             state.headers = data['hydra:member']
         },
         setDataEcs(state, data) {
-            state.ecs = data['hydra:member']
+            state.ecs = data['hydra:member'].filter(ec => ec.nom !== "Projets Tut")
+            const projetTut = data['hydra:member'].filter(ec => ec.nom === "Projets Tut")[0]
+            state.idProjetTut = projetTut['@id']
             state.loading = false
         },
         setDataEnseignants(state, data) {
@@ -230,15 +233,20 @@ export default new Vuex.Store({
             // TODO: A tester : il ne faudrait pas supprimer les cours existants si on augmente les horaires.
             // c'est plus compliqué que cela car le fait de tout supprimer permet de recréer tout et pas seulement les cours en plus...
             // if (data.nbHeuresAncien > data.nbHeures) {
-                commit('suppCoursAll', getters)
+            commit('suppCoursAll', getters)
+            console.log(0)
             //}
             if (data.nbHeures !== -1) {
                 commit('updateEcs', data)
             }
+            console.log(1)
             commit('modificationCours', {data, getters})
+            console.log(2)
             state.coursAPost.forEach(c => commit('createCoursApi', c))
+            console.log(3)
             state.coursAPost = []
             commit('updateEcsApi', data.ec)
+            console.log(4)
             state.ecModifie = null
         },
         deleteCoursAction(context,data) {
@@ -248,7 +256,7 @@ export default new Vuex.Store({
             context.commit('updateCours', data)
         },
         updateCoursApiAction(context, data) {
-            if (data.cours.ec === undefined) {
+            if (data.cours.ec === context.state.idProjetTut) {
                 context.commit('createCoursApi', data)
             } else {
                 context.commit('updateCoursApi', data)
@@ -302,8 +310,6 @@ export default new Vuex.Store({
     },
     getters: {
         modifsCours: (state, getters) => (ecModifie) => {
-            //let ecs=state.ecs
-            //getters
             let cours
             let nouveauxCours = []
             nouveauxCours = getters.coursTousSaufByEcId(ecModifie)

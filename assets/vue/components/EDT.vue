@@ -1,24 +1,23 @@
 <template>
   <v-app>
     <v-overlay :value="overlay">
-      <v-progress-circular
-          indeterminate
-          size="64"
-      ></v-progress-circular>
+      <v-progress-circular indeterminate size="64"></v-progress-circular>
     </v-overlay>
-    <v-toolbar flat>
+    <v-toolbar flat v-if="connecte">
       <v-toolbar-title >Cours à placer</v-toolbar-title>
       <v-spacer></v-spacer>
       <v-btn color="grey" large @click="newProjetTut">Projets Tut<v-icon dark right>mdi-plus</v-icon></v-btn>
       <v-spacer></v-spacer>
       <v-btn color="success" large @click="exportPdf">PDF</v-btn>&nbsp;
-      <v-btn color="primary" large @click="$router.push('/planning')">Retour au planning</v-btn>
+      <v-btn color="primary" large @click="$router.push({name: 'planning'})">Retour au planning</v-btn>
     </v-toolbar>
-    <drop-list :items="cours" @insert="retireCours" :set="ancienEc=''">
+    <drop-list :items="cours" @insert="retireCours" :set="ancienEc=''" v-if="connecte">
       <template v-slot:item="{item}">
         <div :key="item.id+100" class="a-la-ligne" v-if="retourLigne(item.ec.nom, ancienEc)">&nbsp;</div>
-        <drag :key="item.id" class="chip" :data="item" :set="ancienEc=item.ec.nom">
-          <v-chip v-if="item.ec" :color="item.ec.color" outlined @click="showCours(item)">{{ item.ec.type.nom }}:{{ item.ec.nom }}&#45;&#45;groupe{{ item.groupe }}&#45;&#45;{{ item.duree }}h</v-chip>
+        <drag v-if="item.ec" :key="item.id" class="chip" :data="item" :set="ancienEc=item.ec.nom">
+          <!-- TODO: Enlever item.ec.type.nom et item.groupe pour les projets tut-->
+          <v-chip v-if="item.ec['@id']!== $store.state.idProjetTut" :color="item.ec.color" outlined @click="showCours(item)">{{ item.ec.type.nom }}:{{ item.ec.nom }}&#45;&#45;groupe{{ item.groupe }}&#45;&#45;{{ item.duree }}h</v-chip>
+          <v-chip v-else :color="item.ec.color" outlined @click="showCours(item)">{{ item.ec.nom }}&#45;&#45;{{ item.duree }}h</v-chip>
         </drag>
       </template>
       <template v-slot:feedback="{data}">
@@ -51,10 +50,16 @@
                     <div :class="getCoursClass(creneau)"
                          :style="{'background': creneau.ec.color, 'height': calcHauteur(creneau.duree),   }"
                          @click="showPlaces(creneau)">
+                      <template v-if="creneau.ec['@id']!== $store.state.idProjetTut">
                       <p class="titre">{{ creneau.ec.type.nom }} - {{ creneau.ec.nom }}</p>
                       <p>{{ creneau.ec.promo.nom }}</p>
                       <p>{{ creneau.enseignant }} - {{ creneau.salle }}</p>
                       <p>{{ creneau.remarque }}</p>
+                      </template>
+                      <template v-else>
+                        <p class="titre">{{ creneau.ec.nom }}</p>
+                        <p>{{ creneau.remarque }}</p>
+                      </template>
                     </div>
                     </transition>
                   </drag>
@@ -109,9 +114,13 @@ export default {
     }
   },
   created() {
+    this.$store.state.annee=parseInt(this.$route.params.annee)
     this.callApi()
   },
   computed: {
+    connecte() {
+      return this.$store.state.connexion.connecte
+    },
     numSemString() {
       let num = this.numSemaine
       if (num < 10) {
@@ -173,6 +182,11 @@ export default {
     },
     callApi() {
       this.$store.state.overlay = true
+      ApiSf().get('ecs?annee='+parseInt(this.$route.params.annee)+'&nom=Projets Tut')
+          .then(response => response.data)
+          .then(q => {
+            this.$store.state.idProjetTut=q['hydra:member'][0]['@id']
+          })
       ApiSf().get('cours?semaine='+this.numSemString+'&ec.annee='+this.$route.params.annee)
           .then(response => response.data)
           .then(q => {
@@ -206,7 +220,7 @@ export default {
         this.editedIndex = this.places.indexOf(cours)
         this.editedCours = Object.assign({}, cours)
       }
-      if (this.editedCours.id === undefined || this.editedCours.ec.nom === 'Projet Tut') {
+      if (this.editedCours.id === undefined || this.editedCours.ec['@id'] === this.$store.state.idProjetTut) {
         this.dialogProjetTut = true
       } else {
         this.dialogCours = true
@@ -224,6 +238,8 @@ export default {
           Object.assign(this.places[this.editedIndex], this.editedCours)
         }
       } else {
+        console.log("projet tut")
+        this.editedCours.ec = this.$store.state.idProjetTut
         this.editedCours.duree = parseFloat(this.editedCours.duree)
         this.editedCours.semaine = this.numSemString
         this.editedCours.place = false
@@ -312,7 +328,7 @@ export default {
         this.numSemaine = 52
       else
         this.numSemaine--
-      this.$router.push({name: 'Edt', params: {semaine: this.numSemaine}})
+      this.$router.push({name: 'edt', params: {semaine: this.numSemaine}})
       this.callApi()
     },
     nextWeek() {
@@ -320,7 +336,7 @@ export default {
         this.numSemaine = 1
       else
         this.numSemaine++
-      this.$router.push({name: 'Edt', params: {semaine: this.numSemaine}})
+      this.$router.push({name: 'edt', params: {semaine: this.numSemaine}})
       this.callApi()
     },
     calcHauteur(duree) {

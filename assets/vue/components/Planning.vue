@@ -6,7 +6,7 @@
       </v-progress-circular>
     </v-overlay>
     <p></p>
-    <v-data-table :headers="$store.state.headers" :items="$store.state.ecs" dense locale="fr-FR" hide-default-footer
+    <v-data-table :headers="headers" :items="ecs" dense locale="fr-FR" hide-default-footer
                   disable-sort :search="recherche" :custom-filter="filterEc" :loading="loading"
                   disable-pagination hide-default-header no-data-text="Aucun enseignement n'a été créé...">
       <template v-slot:top>
@@ -31,7 +31,7 @@
           <th v-for="header in headers" :key="header.value" role="columnheader" scope="col" :aria-label="header.texte" class="text-center">
             <v-tooltip bottom v-if="header.texte.startsWith('S')">
               <template v-slot:activator="{ on, attrs }">
-                <span v-bind="attrs" v-on="on"><router-link :to="{name: 'Edt', params: {semaine: parseInt(header.texte.substr(1),10), annee: annee}}">{{ header.texte }}</router-link></span>
+                <span v-bind="attrs" v-on="on"><router-link :to="{name: 'edt', params: {semaine: parseInt(header.texte.substr(1),10), annee: annee}}">{{ header.texte }}</router-link></span>
               </template>
               <div>WDI: {{ getNbHeuresSemaine(header.value, 'WDI')}}h</div>
               <div>DFS: {{ getNbHeuresSemaine(header.value, 'DFS')}}h</div>
@@ -59,7 +59,7 @@
               <template v-else>{{getNbHeuresEffectives(items.item, col.value)}}({{getNbHeures(items.item, col.value)}})</template>
               <template v-slot:input>
                 <div class="mt-4 title">{{ items.item.nom }}-{{ items.item.type.nom }} : {{ col.value }}</div>
-                <!-- :value et @input remplacent le v-model -->
+                <!-- :value et @change remplacent le v-model -->
                 <v-text-field :value="getNbHeures(items.item,col.value)" @change="updateProp(items.item,col.value,$event)"
                               label="Nb heures" single-line autofocus></v-text-field>
               </template>
@@ -174,7 +174,9 @@ export default {
       else return 'green'
     },
     updateProp(ec, semaine, nbHeures) {
-      const nbHeuresAncien = ec.nbHeures
+      //console.log(ec,semaine,nbHeures)
+      if(!isNaN(nbHeures)) {
+        const nbHeuresAncien = ec.nbHeures
         this.$nextTick(() => {
           // permet de mettre à jour de manière réactive l'elément
           this.$set(ec.semaines, semaine, nbHeures)
@@ -185,6 +187,7 @@ export default {
             nbHeuresAncien: nbHeuresAncien
           })
         })
+      }
     },
     getProp(elem, key) {
       return elem[key]

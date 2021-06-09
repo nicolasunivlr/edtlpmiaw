@@ -16,7 +16,7 @@ use ApiPlatform\Core\Bridge\Doctrine\Orm\Filter\SearchFilter;
  *     normalizationContext={"groups"={"read:ec"}},
  *     denormalizationContext={"groups"={"write:ec"}},
  * )
- * @ApiFilter(SearchFilter::class, properties={"annee": "exact"})
+ * @ApiFilter(SearchFilter::class, properties={"annee": "exact","nom":"exact"})
  */
 class Ec
 {

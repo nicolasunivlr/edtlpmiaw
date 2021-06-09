@@ -10,7 +10,7 @@ Vue.use(VueRouter)
 const routes = [
     {
         path: '/',
-        name: 'Home',
+        name: 'home',
         component: Home,
         texte: 'Accueil',
         icon: 'mdi-home'
@@ -24,14 +24,14 @@ const routes = [
     },
     {
         path: '/planning',
-        name: 'Planning',
+        name: 'planning',
         component: Planning,
         texte: 'Planning',
         icon: 'mdi-calendar-text'
     },
     {
         path: '/edt/:annee/:semaine?',
-        name: 'Edt',
+        name: 'edt',
         component: EDT,
         texte: 'EDT',
         icon: 'mdi-calendar-week',
@@ -39,7 +39,7 @@ const routes = [
     },
     {
         path: '/aide',
-        name: 'Aide',
+        name: 'aide',
         texte: 'Aide',
         icon: 'mdi-help-circle',
         // route level code-splitting

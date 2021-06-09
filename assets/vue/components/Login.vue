@@ -12,7 +12,8 @@
 </template>
 
 <script>
-    import ApiSf from "../api/apiSf";
+    import ApiSf from "../api/apiSf"
+    import jwtDecode from "jwt-decode"
 
     ApiSf()
 
@@ -27,17 +28,22 @@
             }
         },
         methods: {
-            checkLogin() {
+          checkLogin() {
                 // A tester pour mettre la gestion de la connexion dans le store
                 //this.$store.dispatch('signIn')
                 ApiSf().post('login_check',{username:this.username,password:this.password})
                     .then(response =>  {
                         this.token=response.data
+                        const roles = jwtDecode(this.token.token).roles
                         this.resultat='succès'
                         sessionStorage.setItem('token',this.token.token)
                         this.$store.commit('connect',this.username)
                         this.$store.dispatch('getDataAction')
-                        this.$router.push('/planning')
+                        if (roles.includes('ROLE_ADMIN')) {
+                          this.$router.push({name: 'planning'})
+                        } else {
+                          this.$router.push({name: 'edt', params: {annee: this.$store.state.annee}})
+                        }
                     })
                     .catch( e => {
                         if (e.response) {
