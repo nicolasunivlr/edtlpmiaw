@@ -21,10 +21,10 @@
             <v-text-field v-model="editedEc.nbGroupes" label="Nombre de groupes"></v-text-field>
           </v-col>
           <v-col cols="12" sm="6" md="4">
-            <v-text-field v-model="editedEc.duree" label="Duree"></v-text-field>
+            <v-text-field v-model="editedEc.duree" label="Duree" :error="rules.bool" :error-messages="rules.message"></v-text-field>
           </v-col>
           <v-col cols="12" sm="6" md="4">
-            <v-text-field v-model="editedEc.vol" label="Volume"></v-text-field>
+            <v-text-field v-model="editedEc.vol" label="Volume">0</v-text-field>
           </v-col>
         </v-row>
         <v-row>
@@ -52,6 +52,10 @@ export default {
   },
   data() {
     return {
+      rules: {
+        bool: false,
+        message: ""
+      }
     }
   },
   methods:{
@@ -59,7 +63,12 @@ export default {
       this.$emit('close')
     },
     save() {
-      this.$emit('save')
+      if (parseInt(this.editedEc.duree)<=0) {
+        this.rules.bool = true
+        this.rules.message = "supérieur à 1"
+      } else {
+        this.$emit('save')
+      }
     }
   }
 }

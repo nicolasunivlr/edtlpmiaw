@@ -46,7 +46,7 @@
             action(route) {
               this.fermetureMenu()
               if (route.name === 'Edt')
-                this.$router.push('/edt')
+                this.$router.push({ name: 'edt', params : {annee: this.$store.state.annee}})
               else
                 this.$router.push(route.path)
             },
