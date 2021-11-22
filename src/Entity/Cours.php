@@ -31,7 +31,7 @@ class Cours
     /**
      * @ORM\ManyToOne(targetEntity=Ec::class)
      * @ORM\JoinColumn(nullable=true)
-     * @Groups({"read:cours", "write:cours"})
+     * @Groups({"read:cours", "write:cours", "read:user"})
      */
     private $ec;
 
@@ -43,7 +43,7 @@ class Cours
 
     /**
      * @ORM\Column(type="boolean")
-     * @Groups({"read:cours", "write:cours"})
+     * @Groups({"read:cours", "write:cours", "read:user"})
      */
     private $place;
 
@@ -79,13 +79,23 @@ class Cours
 
     /**
      * @ORM\Column(type="float", nullable=true)
-     * @Groups({"read:cours", "write:cours"})
+     * @Groups({"read:cours", "write:cours", "read:user"})
      * UPDATE cours
      *    INNER JOIN ec
      *    ON cours.ec_id = ec.id
      *    SET cours.duree = ec.duree;
      */
     private $duree;
+
+    /**
+     * @ORM\ManyToOne(targetEntity=Utilisateur::class, inversedBy="cours")
+     * @Groups({"read:cours", "write:cours"})
+     * UPDATE cours
+     * JOIN utilisateur ON cours.enseignant = concat(prenom,' ',upper(utilisateur.nom))
+     * SET cours.prof_id = utilisateur.id
+     * where prof_id is null;
+     */
+    private $prof;
 
     public function getId(): ?int
     {
@@ -196,6 +206,18 @@ class Cours
     public function setDuree(?float $duree): self
     {
         $this->duree = $duree;
+
+        return $this;
+    }
+
+    public function getProf(): ?Utilisateur
+    {
+        return $this->prof;
+    }
+
+    public function setProf(?Utilisateur $prof): self
+    {
+        $this->prof = $prof;
 
         return $this;
     }

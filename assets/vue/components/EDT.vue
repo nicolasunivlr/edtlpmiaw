@@ -8,16 +8,16 @@
       <v-spacer></v-spacer>
       <v-btn color="grey" large @click="newProjetTut">Projets Tut<v-icon dark right>mdi-plus</v-icon></v-btn>
       <v-spacer></v-spacer>
-      <v-btn color="success" large @click="exportPdf">PDF</v-btn>&nbsp;
-      <v-btn color="primary" large @click="$router.push({name: 'planning'})">Retour au planning</v-btn>
+      <v-btn color="success" large @click="exportPdf">PDF<v-icon right dark>mdi-export-variant</v-icon></v-btn>&nbsp;
+      <v-btn color="primary" large @click="$router.push({name: 'planning'})">Planning</v-btn>
     </v-toolbar>
     <drop-list :items="cours" @insert="retireCours" :set="ancienEc=''" v-if="connecte">
       <template v-slot:item="{item}">
         <div :key="item.id+100" class="a-la-ligne" v-if="retourLigne(item.ec.nom, ancienEc)">&nbsp;</div>
         <drag v-if="item.ec" :key="item.id" class="chip" :data="item" :set="ancienEc=item.ec.nom">
           <!-- TODO: Enlever item.ec.type.nom et item.groupe pour les projets tut-->
-          <v-chip v-if="item.ec['@id']!== $store.state.idProjetTut" :color="item.ec.color" outlined @click="showCours(item)">{{ item.ec.type.nom }}:{{ item.ec.nom }}&#45;&#45;groupe{{ item.groupe }}&#45;&#45;{{ item.duree }}h</v-chip>
-          <v-chip v-else :color="item.ec.color" outlined @click="showCours(item)">{{ item.ec.nom }}&#45;&#45;{{ item.duree }}h</v-chip>
+          <v-chip v-if="item.ec['@id']!== $store.state.idProjetTut" :color="item.ec.color" @click="showCours(item)" label>{{ item.ec.type.nom }}:{{ item.ec.nom }}&#45;&#45;groupe{{ item.groupe }}&#45;&#45;{{ item.duree }}h</v-chip>
+          <v-chip v-else :color="item.ec.color" @click="showCours(item)" label>{{ item.ec.nom }}&#45;&#45;{{ item.duree }}h</v-chip>
         </drag>
       </template>
       <template v-slot:feedback="{data}">
@@ -230,6 +230,7 @@ export default {
       if (this.editedCours.id !== undefined) {
         // if (typeof this.editedCours.remarque === 'object')
         //   this.editedCours.remarque = this.editedCours.remarque.nom
+        // TODO: Remplacer enseignant par cours.prof.nom et cours.prof.prenom !!!!
         if (this.editCours) {
           this.$set(this.cours[this.editedIndex], 'enseignant', this.editedCours.enseignant)
           Object.assign(this.cours[this.editedIndex], this.editedCours)

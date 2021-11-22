@@ -29,7 +29,7 @@
         </v-row>
         <v-row>
           <v-col cols="12" sm="12" md="12">
-            <v-color-picker class="ma-2" hide-inputs v-model="editedEc.color"></v-color-picker>
+            <v-color-picker hide-canvas mode="hexa" v-model="editedEc.color"></v-color-picker>
           </v-col>
         </v-row>
       </v-container>

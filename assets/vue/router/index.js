@@ -4,6 +4,7 @@ import Home from '../views/Home'
 import Planning from '../components/Planning'
 import  Login from '../components/Login'
 import EDT from "../components/EDT";
+import StatsEnseignants from "../components/StatsEnseignants";
 
 Vue.use(VueRouter)
 
@@ -36,6 +37,13 @@ const routes = [
         texte: 'EDT',
         icon: 'mdi-calendar-week',
         props: (route) => ({ semaine: route.params.semaine || NaN, annee: route.params.annee || NaN })
+    },
+    {
+        path: '/enseignants',
+        name: 'enseignants',
+        component: StatsEnseignants,
+        texte: 'Charge d\'enseignement',
+        icon: 'mdi-clock-outline'
     },
     {
         path: '/aide',
