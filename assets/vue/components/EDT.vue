@@ -53,7 +53,7 @@
                       <template v-if="creneau.ec['@id']!== $store.state.idProjetTut">
                       <p class="titre">{{ creneau.ec.type.nom }} - {{ creneau.ec.nom }}</p>
                       <p>{{ creneau.ec.promo.nom }}</p>
-                      <p>{{ creneau.enseignant }} - {{ creneau.salle }}</p>
+                      <p><span v-if="creneau.prof">{{ creneau.prof.nomComplet }}</span> - {{ creneau.salle }}</p>
                       <p>{{ creneau.remarque }}</p>
                       </template>
                       <template v-else>
@@ -213,6 +213,7 @@ export default {
       this.show(cours)
     },
     show(cours) {
+      console.log(cours)
       if (this.editCours) {
         this.editedIndex = this.cours.indexOf(cours)
         this.editedCours = Object.assign({}, cours)
@@ -230,7 +231,7 @@ export default {
       if (this.editedCours.id !== undefined) {
         // if (typeof this.editedCours.remarque === 'object')
         //   this.editedCours.remarque = this.editedCours.remarque.nom
-        // TODO: Remplacer enseignant par cours.prof.nom et cours.prof.prenom !!!!
+        // TODO: Remplacer enseignant par cours.prof.nomComplet !!!!
         if (this.editCours) {
           this.$set(this.cours[this.editedIndex], 'enseignant', this.editedCours.enseignant)
           Object.assign(this.cours[this.editedIndex], this.editedCours)

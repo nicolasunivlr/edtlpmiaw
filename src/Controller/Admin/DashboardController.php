@@ -13,7 +13,6 @@ use EasyCorp\Bundle\EasyAdminBundle\Config\Crud;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Dashboard;
 use EasyCorp\Bundle\EasyAdminBundle\Config\MenuItem;
 use EasyCorp\Bundle\EasyAdminBundle\Controller\AbstractDashboardController;
-use EasyCorp\Bundle\EasyAdminBundle\Router\CrudUrlGenerator;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 
@@ -49,11 +48,17 @@ class DashboardController extends AbstractDashboardController
         $actions = parent::configureActions();
         $actions
             ->update(Crud::PAGE_INDEX, Action::EDIT, function (Action $action) {
-                return $action->setIcon('fa fa-edit')->setLabel(false);
+                return $action->setIcon('fa fa-edit')->setLabel('');
             })
             ->update(Crud::PAGE_INDEX, Action::DELETE, function (Action $action) {
-                return $action->setIcon('fa fa-trash')->setLabel(false);
+                return $action->setIcon('fa fa-trash')->setLabel('');
             });
         return $actions;
+    }
+
+    public function configureCrud(): Crud
+    {
+        $crud =  parent::configureCrud();
+        return $crud->showEntityActionsInlined();
     }
 }

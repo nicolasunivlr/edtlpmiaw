@@ -31,7 +31,7 @@ const routes = [
         icon: 'mdi-calendar-text'
     },
     {
-        path: '/edt/:annee/:semaine?',
+        path: '/edt/:annee/:semaine',
         name: 'edt',
         component: EDT,
         texte: 'EDT',
