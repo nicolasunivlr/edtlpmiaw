@@ -22,6 +22,8 @@
 </template>
 
 <script>
+  import moment from 'moment'
+
     export default {
         name: "Navigation",
         props: {
@@ -45,10 +47,12 @@
         methods: {
             action(route) {
               this.fermetureMenu()
-              if (route.name === 'Edt')
-                this.$router.push({ name: 'edt', params : {annee: this.$store.state.annee}})
-              else
+              if (route.name === 'edt') {
+                this.$router.push({ name: 'edt', params : {annee: this.$store.state.annee, semaine: moment().week()}})
+              }
+              else {
                 this.$router.push(route.path)
+              }
             },
             fermetureMenu() {
                 this.$emit('ferme')

@@ -2,25 +2,34 @@
 
 namespace App\Entity;
 
+use ApiPlatform\Core\Annotation\ApiFilter;
 use ApiPlatform\Core\Annotation\ApiResource;
 use App\Repository\UtilisateurRepository;
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
 use Symfony\Component\Security\Core\User\UserInterface;
 use Symfony\Component\Serializer\Annotation\Groups;
+use ApiPlatform\Core\Bridge\Doctrine\Orm\Filter\SearchFilter;
+use ApiPlatform\Core\Bridge\Doctrine\Orm\Filter\OrderFilter;
 
 /**
  * @ORM\Entity(repositoryClass=UtilisateurRepository::class)
  * @ApiResource(
  *     paginationEnabled=false,
- *     normalizationContext={"groups"={"read:user"}}
+ *     normalizationContext={"groups"={"read:user"}},
+ *     order={"nom"="ASC"},
  * )
+ * @ApiFilter(SearchFilter::class, properties={"cours.ec.annee": "exact"})
  */
-class Utilisateur implements UserInterface
+class Utilisateur implements UserInterface, PasswordAuthenticatedUserInterface
 {
     /**
      * @ORM\Id
      * @ORM\GeneratedValue
      * @ORM\Column(type="integer")
+     * @Groups({"read:user"})
      */
     private $id;
 
@@ -50,6 +59,17 @@ class Utilisateur implements UserInterface
      */
     private $nom;
 
+    /**
+     * @ORM\OneToMany(targetEntity=Cours::class, mappedBy="prof")
+     * @Groups({"read:user"})
+     */
+    private $cours;
+
+    public function __construct()
+    {
+        $this->cours = new ArrayCollection();
+    }
+
     public function getId(): ?int
     {
         return $this->id;
@@ -59,6 +79,14 @@ class Utilisateur implements UserInterface
      * A visual identifier that represents this user.
      *
      * @see UserInterface
+     */
+    public function getUserIdentifier(): string
+    {
+        return (string) $this->username;
+    }
+
+    /**
+     * @deprecated since Symfony 5.3, use getUserIdentifier instead
      */
     public function getUsername(): string
     {
@@ -92,14 +120,14 @@ class Utilisateur implements UserInterface
     }
 
     /**
-     * @Groups({"read:user"})
+     * @Groups({"read:user", "read:cours"})
      */
     public function getNomComplet(): string  {
         return $this->getPrenom().' '.strtoupper($this->getNom());
     }
 
     /**
-     * @see UserInterface
+     * @see PasswordAuthenticatedUserInterface
      */
     public function getPassword(): string
     {
@@ -118,7 +146,7 @@ class Utilisateur implements UserInterface
      */
     public function getSalt()
     {
-        // not needed when using the "bcrypt" algorithm in security.yaml
+        return null;
     }
 
     /**
@@ -150,6 +178,36 @@ class Utilisateur implements UserInterface
     public function setNom(?string $nom): self
     {
         $this->nom = $nom;
+
+        return $this;
+    }
+
+    /**
+     * @return Collection|Cours[]
+     */
+    public function getCours(): Collection
+    {
+        return $this->cours;
+    }
+
+    public function addCour(Cours $cour): self
+    {
+        if (!$this->cours->contains($cour)) {
+            $this->cours[] = $cour;
+            $cour->setProf($this);
+        }
+
+        return $this;
+    }
+
+    public function removeCour(Cours $cour): self
+    {
+        if ($this->cours->removeElement($cour)) {
+            // set the owning side to null (unless already changed)
+            if ($cour->getProf() === $this) {
+                $cour->setProf(null);
+            }
+        }
 
         return $this;
     }

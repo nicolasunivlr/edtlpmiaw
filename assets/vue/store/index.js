@@ -80,6 +80,7 @@ export default new Vuex.Store({
                 cours.ec = null
             } else {
                 cours.ec = cours.ec['@id']
+                cours.prof = cours.prof['@id']
             }
             cours.duree = parseFloat(cours.duree)
             cours.groupe = parseInt(cours.groupe)
@@ -290,7 +291,7 @@ export default new Vuex.Store({
                 .then(q => {
                     context.commit("setDataEcs", q)
                 })
-            ApiSf().get('utilisateurs')
+            ApiSf().get('utilisateurs?cours.ec.annee='+context.state.annee)
                 .then(response => response.data)
                 .then(q => {
                     context.commit("setDataEnseignants", q)

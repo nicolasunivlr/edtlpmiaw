@@ -7,9 +7,7 @@
       <v-card-text>
         <v-container>
           <v-row>
-<!--            TODO: Choisir l'enseignant dans une liste auto-complete -->
-<!--            <v-text-field v-model="editedCours.enseignant" label="Nom de l'enseignant"></v-text-field>-->
-            <v-autocomplete v-model="editedCours.enseignant" label="Nom de l'enseignant" :items="enseignants" item-text="nomComplet" item-value="nomComplet" single-line></v-autocomplete>
+            <v-autocomplete v-model="editedCours.prof" label="Nom de l'enseignant" :items="enseignants" item-text="nomComplet" item-value="nomComplet" single-line return-object></v-autocomplete>
           </v-row>
           <v-row>
             <v-text-field v-model="editedCours.salle" label="Salle"></v-text-field>

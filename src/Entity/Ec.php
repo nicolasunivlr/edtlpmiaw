@@ -30,14 +30,14 @@ class Ec
 
     /**
      * @ORM\Column(type="string", length=255)
-     * @Groups({"read:ec", "write:ec","read:cours"})
+     * @Groups({"read:ec", "write:ec", "read:cours", "read:user"})
      */
     private $nom;
 
     /**
      * @ORM\ManyToOne(targetEntity=TypeCours::class)
      * @ORM\JoinColumn(nullable=false)
-     * @Groups({"read:ec", "write:ec","read:cours"})
+     * @Groups({"read:ec", "write:ec", "read:cours", "read:user"})
      */
     private $type;
 
@@ -80,7 +80,7 @@ class Ec
 
     /**
      * @ORM\Column(type="integer", nullable=true)
-     * @Groups({"read:ec", "write:ec"})
+     * @Groups({"read:ec", "write:ec", "read:user"})
      */
     private $annee;
 

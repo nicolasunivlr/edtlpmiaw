@@ -26,7 +26,7 @@ class TypeCours
 
     /**
      * @ORM\Column(type="string", length=255)
-     * @Groups({"read:type", "read:ec","read:cours"})
+     * @Groups({"read:type", "read:ec", "read:cours", "read:user"})
      */
     private $nom;
 

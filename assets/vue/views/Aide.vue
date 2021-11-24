@@ -24,8 +24,15 @@
       <li>On peut modifier la durée d'un créneau pour un cours donné</li>
       <li>On peut permetter deux cours qui sont placés à condition qu'ils appartiennent au même groupe</li>
     </ul>
+    <h2>Charge horaire des enseignants</h2>
+    <ul>
+      <li>On peut voir par année, la charge de chaque enseignant de manière globale</li>
+      <li>En cliquant à droite d'un enseignant, le détail apparait</li>
+      <li>On peut changer d'année en cours, valable également pour planning et EDT</li>
+    </ul>
     <h2>Préférences</h2>
     <ul>
+      <li>J'ai retiré ce composant, pas stable...</li>
       <li>On peut activer le contrôle du placement des cours.(béta)</li>
     </ul>
     <h3>Version 1.0.1</h3>
