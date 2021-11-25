@@ -231,23 +231,15 @@ export default new Vuex.Store({
         updateEcsAction({state, commit, getters}, data) {
             state.overlay = true
             commit('saveCours', data)
-            // TODO: A tester : il ne faudrait pas supprimer les cours existants si on augmente les horaires.
-            // c'est plus compliqué que cela car le fait de tout supprimer permet de recréer tout et pas seulement les cours en plus...
-            // if (data.nbHeuresAncien > data.nbHeures) {
             commit('suppCoursAll', getters)
-            console.log(0)
-            //}
             if (data.nbHeures !== -1) {
                 commit('updateEcs', data)
             }
-            console.log(1)
+
             commit('modificationCours', {data, getters})
-            console.log(2)
             state.coursAPost.forEach(c => commit('createCoursApi', c))
-            console.log(3)
             state.coursAPost = []
             commit('updateEcsApi', data.ec)
-            console.log(4)
             state.ecModifie = null
         },
         deleteCoursAction(context,data) {
@@ -266,16 +258,16 @@ export default new Vuex.Store({
         saveEcsAction(context) {
             context.commit('saveEcs')
         },
-        getCoursPlacesAction(context) {
-            return ApiSf().get('cours?place='+1)
+        async getCoursPlacesAction(context) {
+            await ApiSf().get('cours?place='+1)
                 .then(response => response.data)
                 .then(response => {
                     context.commit("setCoursPlaces", response)
                 })
         },
-        getDataAction(context) {
+        async getDataAction(context) {
             context.state.overlay = true
-            ApiSf().get('headers')
+            await ApiSf().get('headers')
                 .then(response => response.data)
                 .then(q => {
                     context.commit("setDataHeaders", q)
@@ -286,22 +278,22 @@ export default new Vuex.Store({
                         context.state.connexion.connecte = false
                     }
                 })
-            ApiSf().get('ecs?annee='+context.state.annee)
+            await ApiSf().get('ecs?annee='+context.state.annee)
                 .then(response => response.data)
                 .then(q => {
                     context.commit("setDataEcs", q)
                 })
-            ApiSf().get('utilisateurs?cours.ec.annee='+context.state.annee)
+            await ApiSf().get('utilisateurs?cours.ec.annee='+context.state.annee)
                 .then(response => response.data)
                 .then(q => {
                     context.commit("setDataEnseignants", q)
                 })
-            ApiSf().get('type_cours')
+            await ApiSf().get('type_cours')
                 .then(response => response.data)
                 .then(q => {
                     context.commit("setDataType", q)
                 })
-            return ApiSf().get('promos')
+            await ApiSf().get('promos')
                 .then(response => response.data)
                 .then(q => {
                     context.commit("setDataPromo", q)
@@ -373,9 +365,6 @@ export default new Vuex.Store({
             // cours qui sont impactés par la modifcation du planning
             return state.copieCours.filter(c => c.ec.id === ecModifie.ec.id && c.semaine === ecModifie.semaine)
         },
-        // getNbHeuresEffectives: (state) => (ec, semaine) => {
-        //     return 0
-        // }
     },
     modules: {},
 })

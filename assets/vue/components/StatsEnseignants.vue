@@ -21,8 +21,10 @@
       </v-toolbar>
     </template>
     <template v-slot:expanded-item="{ headers, item }">
-      <td :colspan="headers.length">
-        <v-simple-table fixed-header dark>
+      <td :colspan="headers.length" :class="{'ma-0 pa-0': true, 'expanded-closing': !transitioned[getItemId(item)]}" style="height: auto;">
+        <v-expand-transition>
+          <div v-show="transitioned[getItemId(item)]">
+        <v-simple-table fixed-header dark class="fond-bleu">
           <template v-slot:default>
             <thead>
             <tr>
@@ -31,20 +33,31 @@
               <th class="text-left">CM</th>
               <th class="text-left">TD</th>
               <th class="text-left">TP</th>
+              <th class="text-left">&nbsp;</th>
             </tr>
             </thead>
             <tbody>
             <tr v-for="(d, nomCours, index) in item.cours" :key="index">
-              <td>{{ nomCours }}</td>
+              <th>{{ nomCours }}</th>
               <td>{{ d.total }}</td>
               <td>{{ d.CM }}</td>
               <td>{{ d.TD }}</td>
               <td>{{ d.TP }}</td>
+              <td>&nbsp;</td>
             </tr>
             </tbody>
           </template>
         </v-simple-table>
+          </div>
+        </v-expand-transition>
       </td>
+    </template>
+    <template v-slot:item.data-table-expand="props">
+      <v-icon :class="{
+                  'v-data-table__expand-icon': true,
+                  'v-data-table__expand-icon--active': props.isExpanded && transitioned[getItemId(props.item)]
+                  }"
+          @click="toggleExpand(props)">mdi-chevron-down</v-icon>
     </template>
   </v-data-table>
 </v-app>
@@ -57,6 +70,9 @@ export default {
   name: "StatsEnseignants",
   data() {
     return {
+      transitioned: [],
+      closeTimeouts: {},
+      singleExpand: true,
       annees: [{'texte': '2020-2021','annee':2020}, {'texte': '2021-2022','annee':2021}],
       recherche: '',
       expanded: [],
@@ -114,6 +130,34 @@ export default {
     }
   },
   methods: {
+    getItemId (item) {
+      return item.enseignant // Must be uid of record (would be nice if v-data-table exposed a "getItemKey" method)
+    },
+    toggleExpand (props) {
+      const item = props.item
+      const id = this.getItemId(item)
+      if (props.isExpanded && this.transitioned[id]) {
+        // If we're expanded and not in the process of closing, close
+        this.closeExpand(item)
+      } else {
+        // If we're closed or in the process of closing, expand
+        // Stop us from closing if a close transition was started
+        clearTimeout(this.closeTimeouts[id])
+        // Tell v-data-table to add the expansion content for the item
+        props.expand(true)
+        // Show expansion content with transition animation after it's had time to get added to the DOM
+        this.$nextTick(() => this.$set(this.transitioned, id, true))
+        // Hide all other expanded items if single-expand
+        if (this.singleExpand) this.$nextTick(() => this.expanded.forEach(i => i !== item && this.closeExpand(i)))
+      }
+    },
+    closeExpand (item) {
+      const id = this.getItemId(item)
+      // Mark that this item is in the process of closing
+      this.$set(this.transitioned, id, false)
+      // Remove expansion content from DOM after transition animation has had enough time to finish
+      this.closeTimeouts[id] = setTimeout(() => this.$refs.vDataTable.expand(item, false), 600)
+    },
     filterEc (value, search, item) {
       return value != null &&
           search != null &&
@@ -130,6 +174,10 @@ export default {
 
 <style scoped>
 .v-data-table > .v-data-table__wrapper > table > tbody > tr > td, .v-data-table > .v-data-table__wrapper > table > tbody > tr > th, .v-data-table > .v-data-table__wrapper > table > tfoot > tr > td, .v-data-table > .v-data-table__wrapper > table > tfoot > tr > th, .v-data-table > .v-data-table__wrapper > table > thead > tr > td, .v-data-table > .v-data-table__wrapper > table > thead > tr > th {
-  padding: 0 0;
+  padding: 10px;
+}
+
+.fond-bleu {
+  background: #607d8b;
 }
 </style>

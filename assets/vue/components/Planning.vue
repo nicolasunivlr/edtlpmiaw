@@ -50,14 +50,10 @@
             <v-icon v-if="col.value==='action'" small class="mr-2" @click="editItem(items.item)">mdi-pencil</v-icon>
             <v-edit-dialog v-else-if="col.value !== 'total' && col.value !== 'nom' && col.value !== 'promo'"
                            :return-value.sync="colValue" @save="save()" @cancel="cancel" @open="open" @close="close">
-              <template v-if="getNbHeures(items.item, col.value)===''"><div>&nbsp;</div></template>
-              <template v-else-if="getNbHeures(items.item, col.value) == getNbHeuresEffectives(items.item, col.value)">
-                <div class="vert">{{getNbHeures(items.item, col.value)}}</div>
-              </template>
-              <template v-else-if="getNbHeures(items.item, col.value) < getNbHeuresEffectives(items.item, col.value)">
-                <div class="rouge">{{getNbHeuresEffectives(items.item, col.value)}}({{getNbHeures(items.item, col.value)}})</div>
-              </template>
-              <template v-else>{{getNbHeuresEffectives(items.item, col.value)}}({{getNbHeures(items.item, col.value)}})</template>
+              <div v-if="getNbHeures(items.item, col.value)===''">&nbsp;</div>
+              <div class="vert" v-else-if="getNbHeures(items.item, col.value) === getNbHeuresEffectives(items.item, col.value)">{{getNbHeures(items.item, col.value)}}</div>
+              <div class="rouge" v-else-if="getNbHeures(items.item, col.value) < getNbHeuresEffectives(items.item, col.value)">{{getNbHeuresEffectives(items.item, col.value)}}({{getNbHeures(items.item, col.value)}})</div>
+              <div v-else>{{getNbHeuresEffectives(items.item, col.value)}}({{getNbHeures(items.item, col.value)}})</div>
               <template v-slot:input>
                 <div class="mt-4 title">{{ items.item.nom }}-{{ items.item.type.nom }} : {{ col.value }}</div>
                 <!-- :value et @change remplacent le v-model -->

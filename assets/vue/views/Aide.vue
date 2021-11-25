@@ -35,7 +35,7 @@
       <li>J'ai retiré ce composant, pas stable...</li>
       <li>On peut activer le contrôle du placement des cours.(béta)</li>
     </ul>
-    <h3>Version 1.0.1</h3>
+    <h3>Version 1.1.1</h3>
   </div>
 </template>
 
