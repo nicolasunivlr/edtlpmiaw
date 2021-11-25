@@ -294,8 +294,8 @@ export default {
     },
     getCoursClass(cours) {
       let tabClass = ['creneau']
-      if (cours.ec.type.nom === 'CM' || cours.ec.type.nom === 'Autre' || cours.ec.nom === 'Projet Tut') {
-        if (cours.ec.promo.nom === 'Tous' || cours.ec.nom === 'Projet Tut') {
+      if (cours.ec.type.nom === 'CM' || cours.ec.type.nom === 'Autre' || cours.ec.nom === 'Projets Tut') {
+        if (cours.ec.promo.nom === 'Tous' || cours.ec.nom === 'Projets Tut') {
           tabClass.push('cm')
         } else {
           tabClass.push('cmdemi')
@@ -310,7 +310,7 @@ export default {
       } else {
         tabClass.push('groupe'+cours.groupe)
       }
-      if (cours.ec.nom === 'Projet Tut') {
+      if (cours.ec.nom === 'Projets Tut') {
         tabClass.push('arriere')
       }
       return tabClass
