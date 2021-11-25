@@ -67,6 +67,7 @@
 import {mapState} from "vuex";
 
 export default {
+  // pour les transitions sur le dropdown : https://codepen.io/webifi/pen/ExxmXbJ
   name: "StatsEnseignants",
   data() {
     return {

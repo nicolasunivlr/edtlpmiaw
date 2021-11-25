@@ -190,14 +190,14 @@ export default {
       return elem[key]
     },
     getNbHeures(ec, semaine) {
-      return ec.semaines[semaine] ? ec.semaines[semaine] : ''
+      return ec.semaines[semaine] ? parseFloat(ec.semaines[semaine]) : ''
     },
     getNbHeuresEffectivesEc(ec) {
       let nbHeures = 0
       // c.ec !== undefined car les projet tut n'ont pas d'ec...
       const coursSemaineEcPlaces = this.$store.state.coursPlaces.filter(c => c.ec !== undefined && c.ec.id === ec.id)
       coursSemaineEcPlaces.forEach(c=> nbHeures = nbHeures + c.duree)
-      return nbHeures/ec.nbGroupes
+      return parseFloat(nbHeures/ec.nbGroupes)
     },
     getNbHeuresEffectives(ec,semaine) {
       if (this.getNbHeures(ec, semaine) === '') {
