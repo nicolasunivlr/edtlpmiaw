@@ -130,7 +130,7 @@ export default {
   },
   computed: {
     ...mapState([
-        'ecs', 'headers', 'promo', 'type', 'loading', 'overlay', 'annee'
+        'ecs', 'headers', 'promo', 'type', 'loading', 'overlay', 'annee', 'coursPlaces'
              ]),
     anneeSelect: {
       get() {
@@ -195,7 +195,7 @@ export default {
     getNbHeuresEffectivesEc(ec) {
       let nbHeures = 0
       // c.ec !== undefined car les projet tut n'ont pas d'ec...
-      const coursSemaineEcPlaces = this.$store.state.coursPlaces.filter(c => c.ec !== undefined && c.ec.id === ec.id)
+      const coursSemaineEcPlaces = this.coursPlaces.filter(c => c.ec !== undefined && c.ec.id === ec.id)
       coursSemaineEcPlaces.forEach(c=> nbHeures = nbHeures + c.duree)
       return parseFloat(nbHeures/ec.nbGroupes)
     },
@@ -205,7 +205,7 @@ export default {
       } else {
         let nbHeures = 0
         // c.ec !== undefined car les projet tut n'ont pas d'ec...
-        const coursSemaineEcPlaces = this.$store.state.coursPlaces.filter(c => c.ec !== undefined && c.semaine === semaine && c.ec.id === ec.id)
+        const coursSemaineEcPlaces = this.coursPlaces.filter(c => c.ec !== undefined && c.semaine === semaine && c.ec.id === ec.id)
         coursSemaineEcPlaces.forEach(c=> nbHeures = nbHeures + c.duree)
         return nbHeures/ec.nbGroupes
       }

@@ -258,13 +258,6 @@ export default new Vuex.Store({
         saveEcsAction(context) {
             context.commit('saveEcs')
         },
-        async getCoursPlacesAction(context) {
-            await ApiSf().get('cours?place='+1)
-                .then(response => response.data)
-                .then(response => {
-                    context.commit("setCoursPlaces", response)
-                })
-        },
         async getDataAction(context) {
             context.state.overlay = true
             await ApiSf().get('headers')
@@ -278,11 +271,17 @@ export default new Vuex.Store({
                         context.state.connexion.connecte = false
                     }
                 })
+            await ApiSf().get('cours?place='+1)
+                .then(response => response.data)
+                .then(response => {
+                    context.commit("setCoursPlaces", response)
+                })
             await ApiSf().get('ecs?annee='+context.state.annee)
                 .then(response => response.data)
                 .then(q => {
                     context.commit("setDataEcs", q)
                 })
+            // TODO: Attention, cela va poser problème lors de la prochaine année : aucun enseignant n'aura de cours...
             await ApiSf().get('utilisateurs?cours.ec.annee='+context.state.annee)
                 .then(response => response.data)
                 .then(q => {

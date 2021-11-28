@@ -61,11 +61,10 @@ export default {
       hints: true,
     }
   },
-  created() {
+  async created() {
     this.$store.dispatch('initialiseStoreAction')
     if (this.connecte) {
-      this.$store.dispatch('getCoursPlacesAction')
-      this.$store.dispatch('getDataAction')
+      await this.$store.dispatch('getDataAction')
           .catch(() => {
         this.deconnexion()
       })
