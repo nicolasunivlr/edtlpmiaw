@@ -213,7 +213,6 @@ export default {
       this.show(cours)
     },
     show(cours) {
-      console.log(cours)
       if (this.editCours) {
         this.editedIndex = this.cours.indexOf(cours)
         this.editedCours = Object.assign({}, cours)
@@ -240,7 +239,6 @@ export default {
           Object.assign(this.places[this.editedIndex], this.editedCours)
         }
       } else {
-        console.log("projet tut")
         this.editedCours.ec = this.$store.state.idProjetTut
         this.editedCours.duree = parseFloat(this.editedCours.duree)
         this.editedCours.semaine = this.numSemString

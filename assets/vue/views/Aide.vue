@@ -22,7 +22,8 @@
       <li>On peut se déplacer dans les semaines en cliquant sur les chevrons à droite et à gauche de la semaine</li>
       <li>On peut ajouter un créneau de projet tuteuré pour un nombre d'heure déterminé. Par l'instant, c'est pour toute la promo</li>
       <li>On peut modifier la durée d'un créneau pour un cours donné</li>
-      <li>On peut permetter deux cours qui sont placés à condition qu'ils appartiennent au même groupe</li>
+      <li>On peut modifier l'heure et le jour d'un créneau pour un cours donné</li>
+      <li>On peut permutter deux cours qui sont placés à condition qu'ils appartiennent au même groupe</li>
     </ul>
     <h2>Charge horaire des enseignants</h2>
     <ul>
@@ -35,7 +36,7 @@
       <li>J'ai retiré ce composant, pas stable...</li>
       <li>On peut activer le contrôle du placement des cours.(béta)</li>
     </ul>
-    <h3>Version 1.1.1</h3>
+    <h3>Version 1.2.1</h3>
   </div>
 </template>
 
