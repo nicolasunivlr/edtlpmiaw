@@ -30,7 +30,7 @@
                     <v-text-field :value="heureTextField" label="Heure du cours" prepend-icon="mdi-clock-time-four-outline" readonly v-bind="attrs" v-on="on"></v-text-field>
                 </template>
                 <v-time-picker v-if="changeHeure" v-model="dateAvecHeure" format="24hr" :allowed-minutes="par15min"
-                               @click:minute="$refs.heureCours.save(dateAvecHeure)" :allowed-hours="de8a20" min="8" max="20"></v-time-picker>
+                               @click:minute="$refs.heureCours.save(dateAvecHeure)" :allowed-hours="de8a20" min="08:00" max="20:00"></v-time-picker>
               </v-menu>
             </v-col>
           </v-row>
